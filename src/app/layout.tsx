@@ -10,7 +10,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <header>Header</header>
       <body>{children}</body>
+      <footer>Footer</footer>
     </html>
   )
 }

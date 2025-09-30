@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "antd": "^5.27.4",
     "next": "15.4.6",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.6",

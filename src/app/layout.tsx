@@ -1,6 +1,6 @@
 "use client";
 import { ConfigProvider, App as AntApp } from "antd";
-import { themeIFPR } from "@/lib/antd-theme";
+// import { themeIFPR } from "@/lib/antd-theme";
 import "./globals.css";
 // import AppHeader from "@/components/layout/AppHeader";
 // import AppFooter from "@/components/layout/AppFooter";
@@ -14,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
-        <ConfigProvider theme={themeIFPR}>
+        <ConfigProvider>
           <AntApp>{children}</AntApp>
         </ConfigProvider>
       </body>

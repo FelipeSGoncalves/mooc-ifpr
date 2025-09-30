@@ -1,0 +1,46 @@
+ /* Estilo para o container principal do header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--cor-primaria-escura);
+}
+
+/* Container que centraliza o conteúdo */
+.container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Wrapper para o logo e o texto */
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Texto principal do logo */
+.logoText {
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Destaque "IFPR" no logo */
+.logoHighlight {
+  color: #93f9b9;
+}
+
+/* Estilo para o Menu do AntD */
+.menu {
+  flex: 1;
+  background-color: transparent !important; /* !important pode ser necessário para sobrescrever o AntD */
+}
+
+/* Agrupador dos botões de ação */
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+}

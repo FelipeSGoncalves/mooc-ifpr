@@ -1,6 +1,6 @@
 "use client";
 import { Layout } from "antd";
-import HeaderPublic from "@/components/layout/HeaderPublic";
+import HeaderPublic from "@/components/layout/header/HeaderPublic";
 import FooterPublic from "@/components/layout/FooterPublic";
 
 export default function PublicLayout({

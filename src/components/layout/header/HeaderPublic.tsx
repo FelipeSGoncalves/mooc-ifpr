@@ -3,6 +3,7 @@ import { Layout, Menu, Button } from "antd";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import styles from "./HeaderPublic.module.css";
 
 export default function HeaderPublic() {
   const pathname = usePathname();
@@ -13,33 +14,18 @@ export default function HeaderPublic() {
     : [];
 
   return (
-    <Layout.Header
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        background: "#0B261C",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          maxWidth: 1200,
-          margin: "0 auto",
-        }}
-      >
+    <Layout.Header className={styles.header}>
+      <div className={styles.container}>
         <Link href="/" aria-label="Página inicial">
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className={styles.logoWrapper}>
             <Image
-              src="/logo-ifpr.svg"
+              src="/icon_mooc.png"
               alt="MOOC IFPR"
-              width={28}
-              height={28}
+              width={50}
+              height={50}
             />
-            <span style={{ color: "#fff", fontWeight: 700 }}>
-              MOOC <span style={{ color: "#93f9b9" }}>IFPR</span>
+            <span className={styles.logoText}>
+              MOOC <span className={styles.logoHighlight}>IFPR</span>
             </span>
           </div>
         </Link>
@@ -57,10 +43,10 @@ export default function HeaderPublic() {
               ),
             },
           ]}
-          style={{ flex: 1, background: "transparent" }}
+          className={styles.menu}
         />
 
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className={styles.buttonGroup}>
           <Link href="/auth/login">
             <Button>Entrar</Button>
           </Link>

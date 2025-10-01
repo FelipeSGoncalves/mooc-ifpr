@@ -24,13 +24,13 @@
 
 /* Texto principal do logo */
 .logoText {
-  color: #fff;
-  font-weight: 700;
+  color: var(--cor-texto-claro);
+  font-weight: bolder;
 }
 
 /* Destaque "IFPR" no logo */
 .logoHighlight {
-  color: #93f9b9;
+  color: var(--cor-texto-destaque);
 }
 
 /* Estilo para o Menu do AntD */

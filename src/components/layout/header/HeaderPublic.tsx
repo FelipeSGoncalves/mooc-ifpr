@@ -23,6 +23,8 @@ export default function HeaderPublic() {
               alt="MOOC IFPR"
               width={50}
               height={50}
+              className={styles.logo}
+              priority
             />
             <span className={styles.logoText}>
               MOOC <span className={styles.logoHighlight}>IFPR</span>

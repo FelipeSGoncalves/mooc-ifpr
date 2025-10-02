@@ -10,13 +10,14 @@ import { FC } from 'react';
 
 // 2. Importe suas imagens da pasta assets
 // O caminho relativo sobe três níveis para chegar na pasta `src`
-import criarCursoIcon from '../../../../assets/criar_curso.png';
-import cursosIcon from '../../../../assets/catalogo_cursos_alunos.png'; // Verifique se este é o ícone correto para "Cursos"
-import dashboardIcon from '../../../../assets/dashboard_adm.png';
-import solicitacoesIcon from '../../../../assets/solicitacoes_adm.png';
-import userIcon from '../../../../assets/pessoasLogin.png'; // Ícone para o botão de perfil
+import criarCursoIcon from '@/assets/criar_curso.png';
+import cursosIcon from '@/assets/catalogo_cursos_alunos.png'; // Verifique se este é o ícone correto para "Cursos"
+import dashboardIcon from '@/assets/dashboard_adm.png';
+import solicitacoesIcon from '@/assets/solicitacoes_adm.png';
+import userIcon from '@/assets/icon_perfil.png'; // Ícone para o botão de perfil
+import logoImage from '@/assets/logo_mooc.png';
 
-import styles from './SidebarProtected.module.css';
+import styles from "./SidebarProtected.module.css";
 
 // 3. Atualize o tipo: 'icon' agora é do tipo StaticImageData
 type NavItem = {
@@ -39,9 +40,13 @@ const SidebarProtected: FC = () => {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.logoContainer}>
-        <div className={styles.logo}>
-          MOOC IFPR
-        </div>
+         <Image 
+          src={logoImage}
+          alt="MOOC IFPR Logo"
+          width={150} // Você pode ajustar a largura
+          height={150} // Você pode ajustar a altura
+          priority // Ajuda a carregar a imagem principal mais rápido
+        />
       </div>
 
       <nav className={styles.nav}>
@@ -51,19 +56,19 @@ const SidebarProtected: FC = () => {
             
             return (
               <li key={item.name}>
-                <Link href={item.path}>
-                  <a className={`${styles.navLink} ${isActive ? styles.active : ''}`}>
-                    {/* 5. Renderize usando o componente <Image> */}
-                    <span className={styles.icon}>
-                      <Image 
-                        src={item.icon} 
-                        alt={`${item.name} icon`} // Alt text para acessibilidade
-                        width={24} // Defina a largura
-                        height={24} // Defina a altura
-                      />
-                    </span>
-                    {item.name}
-                  </a>
+                <Link 
+                  href={item.path}
+                  className={`${styles.navLink} ${isActive ? styles.active : ''}`}
+                >
+                  <span className={styles.icon}>
+                    <Image 
+                      src={item.icon} 
+                      alt={`${item.name} icon`}
+                      width={24}
+                      height={24}
+                    />
+                  </span>
+                  {item.name}
                 </Link>
               </li>
             );
@@ -76,8 +81,8 @@ const SidebarProtected: FC = () => {
             <Image 
                 src={userIcon}
                 alt="User profile icon"
-                width={24}
-                height={24}
+                width={44}
+                height={44}
             />
         </button>
       </div>

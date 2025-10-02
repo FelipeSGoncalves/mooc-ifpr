@@ -3,7 +3,8 @@
 
 // export const themeIFPR: ThemeConfig = {
 // token: {
-// colorPrimary: '#198754', // verde institucional
+//#2D3A3A; /* Cor de fundo sidebar */
+// colorPrimary: ''#198754, // verde institucional
 // colorSuccess: '#198754',
 // colorInfo: '#0d6efd',
 // colorWarning: '#ffc107',

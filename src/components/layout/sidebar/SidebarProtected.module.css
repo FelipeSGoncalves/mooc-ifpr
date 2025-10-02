@@ -1,0 +1,97 @@
+/* Estilo geral da Sidebar */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 260px; /* Largura da barra lateral */
+  height: 100vh; /* Altura total da tela */
+  background-color: #2D3A3A; /* Cor de fundo principal */
+  color: #E0E0E0; /* Cor do texto padrão */
+  padding: 20px 0;
+  position: fixed; /* Fixa a sidebar na tela */
+  top: 0;
+  left: 0;
+}
+
+/* Container do Logo */
+.logoContainer {
+  padding: 0 25px;
+  margin-bottom: 20px; /* Reduzido de 30px para 20px */
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Adicionado para centralizar verticalmente a imagem do logo se tiver altura menor */
+  height: 80px; /* Defina uma altura para o container do logo se necessário */
+}
+
+/* ... (classe .logo - que deve estar comentada ou removida) ... */
+
+/* Navegação */
+.nav {
+    margin-bottom: 20px; /* Adicionado ou ajustado para empurrar o perfil para cima */
+    /* Se você quiser que o bloco de navegação ocupe menos espaço vertical */
+    /* max-height: calc(100vh - 80px - 80px - 20px); // Exemplo: 100vh - altura do logo - altura do perfil - margins */
+    /* overflow-y: auto; */ /* Se tiver muitos itens, eles rolarão */
+}
+
+.nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 10px 25px; /* Reduzido de 15px 25px para 10px 25px */
+  color: var(--cor-texto-claro);
+  text-decoration: none;
+  transition: background-color 0.3s, color 0.3s;
+  font-size: 16px; /* Pode diminuir a fonte se quiser um botão menor */
+  border-left: 4px solid transparent;
+}
+
+.navLink:hover {
+  background-color: var(--cor-primaria-clara);
+  color: var(--cor-texto-claro);
+}
+
+/* Estilo do link ativo */
+.navLink.active {
+  background-color: var(--cor-primaria-clara);
+  color: var(--cor-texto-claro);
+  font-weight: 500;
+  border-left: 4px solid var(--cor-destaque);
+}
+
+.icon {
+  margin-right: 10px; /* Reduzido de 15px para 10px para aproximar ícone e texto */
+  display: flex;
+  align-items: center;
+}
+
+/* Container do Perfil */
+.profileContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0; /* Reduzido de 20px 0 para 15px 0 */
+  margin-top: auto; /* IMPORTANTE: Garante que o perfil fique no fundo se o conteúdo for menor que a tela */
+}
+
+.profileButton {
+  background-color: var(--cor-primaria-clara);
+  border: none;
+  border-radius: 50%;
+  width: 40px; /* Reduzido de 45px para 40px */
+  height: 40px; /* Reduzido de 45px para 40px */
+  color: var(--cor-texto-claro);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.3s;
+}
+
+.profileButton:hover {
+  background-color: #5a6c6a;
+}

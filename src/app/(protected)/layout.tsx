@@ -1,6 +1,6 @@
 
 import SidebarProtected from '@/components/layout/sidebar/SidebarProtected'; // Usando alias @
-import styles from './ProtectedLayout.module.css'; // Vamos criar este arquivo
+import styles from '@/components/layout/sidebar/SidebarProtected.module.css'; // Vamos criar este arquivo
 
 export default function ProtectedLayout({
   children,

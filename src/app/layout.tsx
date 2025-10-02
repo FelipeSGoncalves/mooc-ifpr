@@ -1,4 +1,3 @@
-"use client";
 import { ConfigProvider, App as AntApp } from "antd";
 // import { themeIFPR } from "@/lib/antd-theme";
 import "./globals.css";

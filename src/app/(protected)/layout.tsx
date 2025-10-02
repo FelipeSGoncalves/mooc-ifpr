@@ -1,10 +1,19 @@
-const ProtectedLayout = ({children}: {children: React.ReactNode}) => {
+
+import SidebarProtected from '@/components/layout/sidebar/SidebarProtected'; // Usando alias @
+import styles from './ProtectedLayout.module.css'; // Vamos criar este arquivo
+
+export default function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div>
-      <h1>Protected Area</h1>
-      {children}
+    <div className={styles.layoutContainer}>
+      <SidebarProtected />
+      <main className={styles.mainContent}>
+        {children} {/* As páginas da sua área protegida serão renderizadas aqui */}
+      </main>
     </div>
   );
 }
 
-export default ProtectedLayout;

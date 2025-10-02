@@ -1,4 +1,3 @@
-"use client";
 import { Layout, Menu, Button } from "antd";
 import Link from "next/link";
 import Image from "next/image";
@@ -38,6 +37,7 @@ export default function HeaderPublic() {
           selectedKeys={selected}
           items={[
             { key: "cursos", label: <Link href="/catalogo">Cursos</Link> },
+
             {
               key: "validar",
               label: (

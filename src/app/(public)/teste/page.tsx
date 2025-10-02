@@ -1,4 +1,3 @@
-"use client";
 
 import { Divider } from "antd";
 // import Hero from "@/components/home/Hero";

@@ -35,6 +35,7 @@
 
 /* Estilo para o Menu do AntD */
 .menu {
+  color: white !important;
   flex: 1;
   background-color: transparent !important; /* !important pode ser necessário para sobrescrever o AntD */
 }

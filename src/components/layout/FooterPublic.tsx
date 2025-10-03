@@ -1,20 +1,13 @@
 "use client";
+
 import { Layout } from "antd";
+
+import styles from "./FooterPublic.module.css";
 
 export default function FooterPublic() {
   return (
-    <Layout.Footer style={{ background: "#f5f5f5" }}>
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          width: "100%",
-          display: "flex",
-          justifyContent: "space-between",
-          gap: 16,
-          flexWrap: "wrap",
-        }}
-      >
+    <Layout.Footer className={styles.footer}>
+      <div className={styles.container}>
         <span>
           © {new Date().getFullYear()} IFPR – Campus Foz do Iguaçu • MOOC
         </span>

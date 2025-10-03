@@ -2,7 +2,7 @@
 
 import { Layout } from "antd";
 
-import FooterPublic from "@/components/layout/FooterPublic";
+import FooterPublic from "@/components/layout/footer/FooterPublic";
 import HeaderPublic from "@/components/layout/header/HeaderPublic";
 
 import styles from "./layout.module.css";

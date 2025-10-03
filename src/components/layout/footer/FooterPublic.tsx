@@ -11,7 +11,6 @@ export default function FooterPublic() {
         <span>
           © {new Date().getFullYear()} IFPR – Campus Foz do Iguaçu • MOOC
         </span>
-        <span>Certificados digitais com validação pública</span>
       </div>
     </Layout.Footer>
   );

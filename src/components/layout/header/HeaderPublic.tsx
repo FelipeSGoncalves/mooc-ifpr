@@ -1,7 +1,8 @@
-import { Layout, Menu, Button } from "antd";
-import Link from "next/link";
+import { Button, Layout, Menu } from "antd";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import styles from "./HeaderPublic.module.css";
 
 export default function HeaderPublic() {
@@ -37,7 +38,6 @@ export default function HeaderPublic() {
           selectedKeys={selected}
           items={[
             { key: "cursos", label: <Link href="/catalogo">Cursos</Link> },
-
             {
               key: "validar",
               label: (

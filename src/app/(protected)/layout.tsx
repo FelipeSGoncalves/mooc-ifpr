@@ -1,6 +1,8 @@
+"use client";
 
-import SidebarProtected from '@/components/layout/sidebar/SidebarProtected'; // Usando alias @
-import styles from '@/components/layout/sidebar/SidebarProtected.module.css'; // Vamos criar este arquivo
+import SidebarProtected from "@/components/layout/sidebar/SidebarProtected";
+
+import styles from "./ProtectedLayout.module.css";
 
 export default function ProtectedLayout({
   children,
@@ -10,10 +12,7 @@ export default function ProtectedLayout({
   return (
     <div className={styles.layoutContainer}>
       <SidebarProtected />
-      <main className={styles.mainContent}>
-        {children} {/* As páginas da sua área protegida serão renderizadas aqui */}
-      </main>
+      <main className={styles.mainContent}>{children}</main>
     </div>
   );
 }
-

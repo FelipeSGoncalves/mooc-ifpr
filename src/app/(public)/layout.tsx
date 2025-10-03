@@ -1,7 +1,11 @@
 "use client";
+
 import { Layout } from "antd";
-import HeaderPublic from "@/components/layout/header/HeaderPublic";
+
 import FooterPublic from "@/components/layout/FooterPublic";
+import HeaderPublic from "@/components/layout/header/HeaderPublic";
+
+import styles from "./layout.module.css";
 
 export default function PublicLayout({
   children,
@@ -9,18 +13,9 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Layout style={{ minHeight: "100vh" }}>
+    <Layout className={styles.layout}>
       <HeaderPublic />
-      <Layout.Content
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          width: "100%",
-          padding: "16px",
-        }}
-      >
-        {children}
-      </Layout.Content>
+      <Layout.Content className={styles.content}>{children}</Layout.Content>
       <FooterPublic />
     </Layout>
   );

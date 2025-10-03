@@ -1,0 +1,22 @@
+.layoutContainer {
+  display: flex;
+  min-height: 100vh;
+}
+
+.mainContent {
+  margin-left: 260px;
+  padding: 32px;
+  flex: 1;
+  background-color: #f9fafb;
+}
+
+@media (max-width: 960px) {
+  .layoutContainer {
+    flex-direction: column;
+  }
+
+  .mainContent {
+    margin-left: 0;
+    padding: 24px 16px;
+  }
+}

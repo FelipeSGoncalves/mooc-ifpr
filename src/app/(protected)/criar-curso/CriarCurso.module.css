@@ -1,0 +1,26 @@
+/* Adicione esta nova classe */
+.container {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: var(--raio-borda-padrao, 8px);
+  max-width: 1100px; /* Define a largura máxima do formulário */
+  margin: 0 auto; /* Centraliza o contêiner na página */
+}
+
+/* Estilos para a página Criar Curso */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.title {
+  /* O !important pode ser necessário para sobrescrever os estilos padrão do Ant Design */
+  margin: 0 !important;
+}
+
+.formActions {
+  /* Adiciona um espaço extra acima dos botões de ação, se necessário */
+  margin-top: 16px;
+}

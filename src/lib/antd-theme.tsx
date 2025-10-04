@@ -37,8 +37,8 @@ export const themeIFPR: ThemeConfig = {
     Button: {
       // Especifica a cor do texto para botões primários
       colorPrimary: '#038A71',
-      colorText: '#FFFFFF', // Texto branco para botões primários
-      colorPrimaryHover: '#1A4032', // Cor ao passar o mouse
+      colorText: '#000000ff', // Texto branco para botões primários
+      colorPrimaryHover: '#038A71', // Cor ao passar o mouse
     },
     Layout: {
       // Cor de fundo geral das páginas

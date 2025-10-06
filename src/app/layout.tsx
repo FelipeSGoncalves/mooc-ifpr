@@ -20,7 +20,7 @@
 
 import { ConfigProvider, App as AntApp } from "antd";
 import { themeIFPR } from "@/lib/antd-theme"; // Importe o tema
-import "./globals.css";
+import "./global.css";
 
 export default function RootLayout({
   children,

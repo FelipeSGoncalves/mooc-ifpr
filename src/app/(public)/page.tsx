@@ -1,6 +1,9 @@
+import { Button } from "antd";
 
 export default function HomePage() {
   return (
-      <h1>homepage</h1>
+    <div style={{ padding: 40 }}>
+      <Button type="primary">Homepage</Button>
+    </div>
   );
 }

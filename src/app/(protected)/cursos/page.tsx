@@ -22,7 +22,6 @@ const { Title } = Typography;
 const { Search } = Input;
 const { Meta } = Card;
 
-// --- Interfaces para corresponder 100% à API ---
 interface KnowledgeArea {
   id: number;
   name: string;
@@ -44,51 +43,44 @@ export default function CursosPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [areaId, setAreaId] = useState<number | null>(null);
-  const [sort, setSort] = useState<string>("nome,asc");
+  const [sort, setSort] = useState<string>("name,asc"); // O valor inicial já está correto
 
-  // Efeito para buscar as Áreas de Conhecimento (para o filtro)
   useEffect(() => {
     const fetchKnowledgeAreas = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/knowledge-area`);
-        if (!response.ok) {
-          throw new Error("Falha ao buscar áreas de conhecimento");
-        }
+        if (!response.ok) throw new Error("Falha ao buscar áreas");
         const data = await response.json();
         setKnowledgeAreas(data.conteudo || []);
       } catch (error) {
-        console.error(error);
+        console.error("Erro ao buscar áreas:", error);
         message.error("Não foi possível carregar as áreas de conhecimento.");
       }
     };
     fetchKnowledgeAreas();
   }, []);
 
-  // Efeito para buscar os Cursos (com filtros e ordenação)
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
       try {
         const params = new URLSearchParams();
-        if (searchTerm) params.append("nome", searchTerm);
-        if (areaId) params.append("areaId", String(areaId));
+        if (searchTerm) params.append("name", searchTerm);
+        if (areaId) params.append("knowledgeAreaId", String(areaId));
         params.append("sort", sort);
 
         const response = await fetch(`${API_BASE_URL}/courses?${params.toString()}`);
-        if (!response.ok) {
-          throw new Error("Falha ao buscar os cursos");
-        }
+        if (!response.ok) throw new Error("Falha ao buscar cursos");
         const data = await response.json();
         setCourses(data.conteudo || []);
       } catch (error) {
-        console.error(error);
+        console.error("Erro ao buscar cursos:", error);
         message.error("Não foi possível carregar os cursos.");
         setCourses([]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchCourses();
   }, [searchTerm, areaId, sort]);
 
@@ -132,8 +124,9 @@ export default function CursosPage() {
               onChange={handleSortChange}
               size="large"
               options={[
-                { value: "nome,asc", label: "Nome (A-Z)" },
-                { value: "nome,desc", label: "Nome (Z-A)" },
+                // CORREÇÃO APLICADA AQUI: alterado 'nome' para 'name'
+                { value: "name,asc", label: "Nome (A-Z)" },
+                { value: "name,desc", label: "Nome (Z-A)" },
                 { value: "id,desc", label: "Mais Recentes" },
                 { value: "id,asc", label: "Mais Antigos" },
               ]}
@@ -141,7 +134,6 @@ export default function CursosPage() {
           </Col>
         </Row>
       </div>
-
       {loading ? (
         <div className={styles.spinContainer}>
           <Spin size="large" />
@@ -161,7 +153,7 @@ export default function CursosPage() {
                     src={course.miniatura || "/src/assets/mooc.jpeg"}
                     width={300}
                     height={170}
-                    style={{ objectFit: 'cover' }}
+                    style={{ objectFit: "cover" }}
                   />
                 }
               >
@@ -176,7 +168,9 @@ export default function CursosPage() {
             </List.Item>
           )}
           locale={{
-            emptyText: <Empty description="Nenhum curso encontrado para os filtros selecionados." />,
+            emptyText: (
+              <Empty description="Nenhum curso encontrado." />
+            ),
           }}
         />
       )}

@@ -1,22 +1,12 @@
-.layoutContainer {
+.container {
   display: flex;
+  flex-direction: row; /* Garante que fique sempre lado a lado */
   min-height: 100vh;
 }
 
 .mainContent {
-  margin-left: 260px;
-  padding: 32px;
-  flex: 1;
-  background-color: #f9fafb;
-}
-
-@media (max-width: 960px) {
-  .layoutContainer {
-    flex-direction: column;
-  }
-
-  .mainContent {
-    margin-left: 0;
-    padding: 24px 16px;
-  }
+  flex-grow: 1; /* Faz o conteúdo ocupar todo o espaço restante */
+  padding: 24px;
+  background-color: var(--cor-fundo-pagina);
+  overflow-y: auto;
 }

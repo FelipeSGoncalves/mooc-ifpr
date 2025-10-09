@@ -24,6 +24,8 @@ export const themeIFPR: ThemeConfig = {
     Layout: {
       // Cor de fundo geral das páginas
       bodyBg: '#F2F2F2',
+      headerBg: '#001205',
+      footerBg: '#001205',
     },
   },
 };

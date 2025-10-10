@@ -1,31 +1,36 @@
-import type { ThemeConfig } from 'antd';
+import type { ThemeConfig } from "antd";
 
 export const themeIFPR: ThemeConfig = {
   token: {
-    // A cor primária afeta botões, links, inputs focados, etc.
-    colorPrimary: '#038A71', // O verde "destaque" da sua paleta
-
-    // Cor de texto principal
-    colorText: '#0B261C', // O verde mais escuro para textos
-
-    // Arredondamento das bordas
-    borderRadius: 8,
-
-    // Fonte padrão
-    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    colorPrimary: "#038A71",
+    colorText: "#001205",
+    colorBgContainer: "#FFFFFF",
+    colorBorder: "#038A71",
+    borderRadius: 10,
+    fontFamily:
+      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
   },
   components: {
     Button: {
-      // Especifica a cor do texto para botões primários
-      colorPrimary: '#038A71',
-      colorText: '#000000ff', // Texto branco para botões primários
-      colorPrimaryHover: '#038A71', // Cor ao passar o mouse
+      //Botão Default
+      defaultColor: "#001205",
+      defaultBorderColor: "#001205",
+      defaultHoverColor: "#038A71",
+      defaultHoverBorderColor: "#038A71",
+
+      //Botão Primário
+      colorPrimary: "#038A71",
+      colorText: "#001205",
+      colorPrimaryHover: "#1A4032",
+
+      //BOTÃO PERIGO
+
+      //BOTÃO DESATIVADO
     },
     Layout: {
-      // Cor de fundo geral das páginas
-      bodyBg: '#F2F2F2',
-      headerBg: '#001205',
-      footerBg: '#001205',
+      bodyBg: "#F2F2F2",
+      headerBg: "#001205",
+      footerBg: "#001205",
     },
   },
 };

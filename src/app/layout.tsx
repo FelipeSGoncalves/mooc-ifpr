@@ -1,7 +1,7 @@
 import { ConfigProvider, App as AntApp } from "antd";
+import AntdRegistry from "@/lib/antd-registry";
 import { themeIFPR } from "@/lib/antd-theme";
 import "./global.css";
-import AntdRegistry from "@/lib/antd-registry";
 
 export default function RootLayout({
   children,

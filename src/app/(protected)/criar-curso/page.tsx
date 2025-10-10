@@ -52,7 +52,6 @@ export default function CriarCursoPage() {
     fetchKnowledgeAreas();
   }, []);
 
-
   const onFinish = async (values: any) => {
     setLoading(true);
 
@@ -67,40 +66,44 @@ export default function CriarCursoPage() {
       campusId: 1,
       visivel: values.visivel,
     };
-    
+
     const token = localStorage.getItem("jwt_token");
     if (!token) {
-        message.error("Você não está autenticado. Faça o login para criar um curso.");
-        setLoading(false);
-        router.push("/auth/login");
-        return;
+      message.error(
+        "Você não está autenticado. Faça o login para criar um curso."
+      );
+      setLoading(false);
+      router.push("/auth/login");
+      return;
     }
 
     try {
       const response = await fetch(`${API_BASE_URL}/courses`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(courseData),
       });
 
       if (response.ok) {
         message.success("Curso criado com sucesso!");
-        router.push('/cursos');
+        router.push("/cursos");
       } else {
         const errorData = await response.json();
         console.error("Erro do backend:", errorData);
         // A mensagem de erro agora mostrará os detalhes da validação
-        const firstError = errorData.errors ? Object.values(errorData.errors)[0] : "Verifique os dados.";
+        const firstError = errorData.errors
+          ? Object.values(errorData.errors)[0]
+          : "Verifique os dados.";
         message.error(`Falha ao criar o curso: ${firstError}`);
       }
     } catch (error) {
       console.error("Erro de rede:", error);
       message.error("Não foi possível conectar ao servidor.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
@@ -123,7 +126,11 @@ export default function CriarCursoPage() {
       >
         <Row gutter={24}>
           <Col xs={24} md={12}>
-            <Form.Item name="titulo" label="Título do Curso" rules={[{ required: true, message: "Insira o título!" }]}>
+            <Form.Item
+              name="titulo"
+              label="Título do Curso"
+              rules={[{ required: true, message: "Insira o título!" }]}
+            >
               <Input placeholder="Ex: Introdução ao React" />
             </Form.Item>
           </Col>
@@ -136,46 +143,82 @@ export default function CriarCursoPage() {
             </Form.Item>
           </Col>
           <Col xs={12} md={6}>
-            <Form.Item name="cargaHoraria" label="Carga Horária (horas)" rules={[{ required: true, message: "Insira a carga horária!" }]}>
+            <Form.Item
+              name="cargaHoraria"
+              label="Carga Horária (horas)"
+              rules={[{ required: true, message: "Insira a carga horária!" }]}
+            >
               <InputNumber style={{ width: "100%" }} placeholder="Ex: 40" />
             </Form.Item>
           </Col>
         </Row>
 
-        <Form.Item name="descricao" label="Descrição" rules={[{ required: true, message: "Insira a descrição!" }]}>
-          <Input.TextArea rows={4} placeholder="Descreva os objetivos e o conteúdo do curso."/>
+        <Form.Item
+          name="descricao"
+          label="Descrição"
+          rules={[{ required: true, message: "Insira a descrição!" }]}
+        >
+          <Input.TextArea
+            rows={4}
+            placeholder="Descreva os objetivos e o conteúdo do curso."
+          />
         </Form.Item>
 
         <Row gutter={24}>
           <Col xs={24} md={12}>
-            <Form.Item name="nomeProfessor" label="Nome do Professor" rules={[{ required: true, message: "Insira o nome do professor!" }]}>
+            <Form.Item
+              name="nomeProfessor"
+              label="Nome do Professor"
+              rules={[
+                { required: true, message: "Insira o nome do professor!" },
+              ]}
+            >
               <Input placeholder="Ex: Prof. Dr. João da Silva" />
             </Form.Item>
           </Col>
           <Col xs={24} md={12}>
-            <Form.Item name="areaConhecimento" label="Área do Curso" rules={[{ required: true, message: "Selecione a área!" }]}>
-              <Select placeholder="Selecione uma área" options={knowledgeAreas.map(area => ({ value: area.id, label: area.name }))} />
+            <Form.Item
+              name="areaConhecimento"
+              label="Área do Curso"
+              rules={[{ required: true, message: "Selecione a área!" }]}
+            >
+              <Select
+                placeholder="Selecione uma área"
+                options={knowledgeAreas.map((area) => ({
+                  value: area.id,
+                  label: area.name,
+                }))}
+              />
             </Form.Item>
           </Col>
         </Row>
-        
+
         <Form.Item name="thumbnail" label="Thumbnail (Opcional)">
-            <Dragger 
+          <Dragger
             name="file"
             listType="picture"
             action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
             fileList={fileList}
             onChange={({ fileList: newFileList }) => setFileList(newFileList)}
             maxCount={1}
-            >
-            <p className="ant-upload-drag-icon"><UploadOutlined /></p>
-            <p className="ant-upload-text">Clique ou arraste um arquivo para esta área</p>
-            </Dragger>
+          >
+            <p className="ant-upload-drag-icon">
+              <UploadOutlined />
+            </p>
+            <p className="ant-upload-text">
+              Clique ou arraste um arquivo para esta área
+            </p>
+          </Dragger>
         </Form.Item>
 
         <Form.Item>
           <Space>
-            <Button type="primary" htmlType="submit" size="large" loading={loading}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              size="large"
+              loading={loading}
+            >
               Criar
             </Button>
             <Button size="large" onClick={() => router.back()}>

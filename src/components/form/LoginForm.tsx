@@ -1,9 +1,8 @@
-
-import React from "react";
-import { Form, Input, Button, Typography } from "antd";
+import { Form, Input, Button, Typography, Col } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
-import Link from "next/link";
 import type { ValidateErrorEntity } from "rc-field-form/lib/interface";
+import Link from "next/link";
+import styles from "./LoginForm.module.css";
 
 interface LoginFormValues {
   email: string;
@@ -12,7 +11,7 @@ interface LoginFormValues {
 
 const LoginForm: React.FC = () => {
   const onFinish = (values: LoginFormValues) => {
-    console.log("Dados recebidos do formulário: ", values);    // Aqui você implementaria a lógica de autenticação
+    console.log("Dados recebidos do formulário: ", values); // Aqui você implementaria a lógica de autenticação
     alert(`Login com Email: ${values.email}`);
   };
   const onFinishFailed = (errorInfo: ValidateErrorEntity<LoginFormValues>) => {
@@ -20,15 +19,7 @@ const LoginForm: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        width: 400,
-        padding: "40px",
-        border: "1px solid #1890ff40", // Um azul claro da paleta do AntD
-        borderRadius: "8px",
-        backgroundColor: "#ffffff",
-      }}
-    >
+    <div className={styles.container}>
       <Typography.Title
         level={2}
         style={{ textAlign: "center", marginBottom: "2rem" }}
@@ -74,20 +65,14 @@ const LoginForm: React.FC = () => {
         <Form.Item style={{ marginBottom: "1rem", textAlign: "center" }}>
           <Typography.Text>
             Não possui uma conta?{" "}
-            <Link href="/registro" style={{ color: "#00A78E" }}>
+            <Link href="/auth/registro" style={{ color: "#00A78E" }}>
               Registre-se
             </Link>
           </Typography.Text>
         </Form.Item>
 
         <Form.Item>
-          <Button
-            type="primary"
-            htmlType="submit"
-            block
-            size="large"
-            style={{ backgroundColor: "#00A78E", borderColor: "#00A78E" }}
-          >
+          <Button type="primary" htmlType="submit" block size="large">
             Enviar
           </Button>
         </Form.Item>

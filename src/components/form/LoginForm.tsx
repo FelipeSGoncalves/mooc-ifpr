@@ -1,4 +1,4 @@
-import { Form, Input, Button, Typography, Col } from "antd";
+import { Form, Input, Button, Typography } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import type { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import Link from "next/link";
@@ -20,10 +20,7 @@ const LoginForm: React.FC = () => {
 
   return (
     <div className={styles.container}>
-      <Typography.Title
-        level={2}
-        style={{ textAlign: "center", marginBottom: "2rem" }}
-      >
+      <Typography.Title level={2} className={styles.title}>
         Entrar
       </Typography.Title>
 
@@ -34,6 +31,7 @@ const LoginForm: React.FC = () => {
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
         autoComplete="off"
+        className={styles.form}
       >
         <Form.Item
           label="Email:"
@@ -62,10 +60,10 @@ const LoginForm: React.FC = () => {
           />
         </Form.Item>
 
-        <Form.Item style={{ marginBottom: "1rem", textAlign: "center" }}>
+        <Form.Item className={styles.helper}>
           <Typography.Text>
             Não possui uma conta?{" "}
-            <Link href="/auth/registro" style={{ color: "#00A78E" }}>
+            <Link href="/auth/registro" className={styles.link}>
               Registre-se
             </Link>
           </Typography.Text>

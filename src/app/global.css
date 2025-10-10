@@ -1,11 +1,14 @@
+html,
+body {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  height: 100%;
   background-color: var(--cor-fundo-pagina);
   color: var(--cor-texto-principal);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
-
 
 :root {
   /* Paleta de Cores Principal */
@@ -30,6 +33,4 @@ body {
   /* Outras Variáveis Úteis */
   --raio-borda-padrao: 4px;
   --sombra-padrao: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 0;
-  height: 100%  ;
 }

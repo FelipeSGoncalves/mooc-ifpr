@@ -17,6 +17,7 @@ import {
 import { ClockCircleOutlined } from "@ant-design/icons";
 import styles from "./CursosPage.module.css";
 import Image from "next/image";
+import Link from "next/link"; // ADICIONADO: Import do Link para navegação
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -43,12 +44,13 @@ export default function CursosPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [areaId, setAreaId] = useState<number | null>(null);
-  const [sort, setSort] = useState<string>("name,asc"); // O valor inicial já está correto
+  const [direction, setDirection] = useState<string>("desc"); 
 
   useEffect(() => {
     const fetchKnowledgeAreas = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/knowledge-area`);
+        // CORREÇÃO 1: Aumentar o tamanho da página para buscar mais áreas
+        const response = await fetch(`${API_BASE_URL}/knowledge-area?size=100`);
         if (!response.ok) throw new Error("Falha ao buscar áreas");
         const data = await response.json();
         setKnowledgeAreas(data.conteudo || []);
@@ -67,7 +69,10 @@ export default function CursosPage() {
         const params = new URLSearchParams();
         if (searchTerm) params.append("name", searchTerm);
         if (areaId) params.append("knowledgeAreaId", String(areaId));
-        params.append("sort", sort);
+        params.append("direction", direction);
+        
+        // CORREÇÃO 1: Adicionado o parâmetro 'size' para buscar mais cursos
+        params.append("size", "100"); // Pede até 100 cursos
 
         const response = await fetch(`${API_BASE_URL}/courses?${params.toString()}`);
         if (!response.ok) throw new Error("Falha ao buscar cursos");
@@ -82,11 +87,11 @@ export default function CursosPage() {
       }
     };
     fetchCourses();
-  }, [searchTerm, areaId, sort]);
+  }, [searchTerm, areaId, direction]);
 
   const handleSearch = (value: string) => setSearchTerm(value);
   const handleAreaChange = (value: number) => setAreaId(value);
-  const handleSortChange = (value: string) => setSort(value);
+  const handleSortChange = (value: string) => setDirection(value);
 
   return (
     <div className={styles.container}>
@@ -119,16 +124,13 @@ export default function CursosPage() {
           <Col xs={24} md={6} lg={7}>
             <label>Ordenar por</label>
             <Select
-              defaultValue={sort}
+              defaultValue={direction}
               style={{ width: "100%" }}
               onChange={handleSortChange}
               size="large"
               options={[
-                // CORREÇÃO APLICADA AQUI: alterado 'nome' para 'name'
-                { value: "name,asc", label: "Nome (A-Z)" },
-                { value: "name,desc", label: "Nome (Z-A)" },
-                { value: "id,desc", label: "Mais Recentes" },
-                { value: "id,asc", label: "Mais Antigos" },
+                { value: "desc", label: "Mais Recentes" },
+                { value: "asc", label: "Mais Antigos" },
               ]}
             />
           </Col>
@@ -144,27 +146,30 @@ export default function CursosPage() {
           dataSource={courses}
           renderItem={(course) => (
             <List.Item>
-              <Card
-                hoverable
-                className={styles.courseCard}
-                cover={
-                  <Image
-                    alt={course.nome}
-                    src={course.miniatura || "/src/assets/mooc.jpeg"}
-                    width={300}
-                    height={170}
-                    style={{ objectFit: "cover" }}
-                  />
-                }
-              >
-                <Tag color="blue" className={styles.areaTag}>
-                  {course.nomeAreaConhecimento}
-                </Tag>
-                <Meta title={course.nome} />
-                <div className={styles.cardFooter}>
-                  <ClockCircleOutlined /> {course.cargaHoraria} horas
-                </div>
-              </Card>
+              {/* CORREÇÃO 2: Card envolvido por um Link para a página de detalhes */}
+              <Link href={`/cursos/${course.id}`}>
+                <Card
+                  hoverable
+                  className={styles.courseCard}
+                  cover={
+                    <Image
+                      alt={course.nome}
+                      src={course.miniatura || "/assets/thumbnailInformaticaDoZero.png"}
+                      width={300}
+                      height={170}
+                      style={{ objectFit: "cover" }}
+                    />
+                  }
+                >
+                  <Tag color="blue" className={styles.areaTag}>
+                    {course.nomeAreaConhecimento}
+                  </Tag>
+                  <Meta title={course.nome} />
+                  <div className={styles.cardFooter}>
+                    <ClockCircleOutlined /> {course.cargaHoraria} horas
+                  </div>
+                </Card>
+              </Link>
             </List.Item>
           )}
           locale={{

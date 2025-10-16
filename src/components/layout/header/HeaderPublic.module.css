@@ -1,46 +1,118 @@
- /* Estilo para o container principal do header */
 .header {
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
+  background: var(--cor-primaria-escura, #001529);
 }
 
-/* Container que centraliza o conteúdo */
 .container {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  padding: 0 16px;
+  min-height: 64px;
 }
 
-/* Wrapper para o logo e o texto */
 .logoWrapper {
   display: flex;
   align-items: center;
   gap: 8px;
+  text-decoration: none;
 }
 
-/* Texto principal do logo */
 .logoText {
   color: var(--cor-texto-claro);
   font-weight: bolder;
 }
 
-/* Destaque "IFPR" no logo */
 .logoHighlight {
   color: var(--cor-texto-destaque);
 }
 
-/* Estilo para o Menu do AntD */
 .menu {
   color: white !important;
   flex: 1;
-  background-color: transparent !important; /* !important pode ser necessário para sobrescrever o AntD */
+  justify-content: flex-end;
+  background-color: transparent !important;
 }
 
-/* Agrupador dos botões de ação */
 .buttonGroup {
   display: flex;
   gap: 8px;
+}
+
+.mobileToggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--cor-texto-claro);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mobileToggle:hover,
+.mobileToggle:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+}
+
+.drawer :global(.ant-drawer-content) {
+  background: var(--cor-primaria-escura, #001529);
+  color: var(--cor-texto-claro);
+}
+
+.drawer :global(.ant-drawer-body) {
+  padding: 24px;
+}
+
+.drawerMenu :global(.ant-menu-item a) {
+  color: inherit;
+}
+
+.drawerButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fullWidthLink {
+  width: 100%;
+}
+
+@media (max-width: 992px) {
+  .container {
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    min-height: 56px;
+  }
+
+  .menu {
+    display: none;
+  }
+
+  .buttonGroup {
+    display: none;
+  }
+
+  .mobileToggle {
+    display: inline-flex;
+  }
+
+  .logoText {
+    font-size: 0.9rem;
+  }
 }

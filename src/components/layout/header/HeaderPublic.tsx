@@ -52,7 +52,7 @@ export default function HeaderPublic() {
           <Link href="/auth/login">
             <Button>Entrar</Button>
           </Link>
-          <Link href="/auth/registro">
+          <Link href="/auth/cadastro">
             <Button type="primary">Cadastrar</Button>
           </Link>
         </div>

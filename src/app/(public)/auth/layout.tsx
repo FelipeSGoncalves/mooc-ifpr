@@ -1,16 +1,31 @@
 "use client";
-import { Row, Col } from "antd";
+
+import { Col, Row } from "antd";
+
 import ImageContainer from "@/components/imageContainer/ImageContainer";
 
-export default function AuthLayout({
-   children,
-}: {
-   children: React.ReactNode;
-}) {
-   return (
-      <Row gutter={10}>
-         <Col span={12}><ImageContainer/></Col>
-         <Col span={12}>{children}</Col>
+import styles from "./layout.module.css";
+
+type AuthLayoutProps = {
+  children: React.ReactNode;
+};
+
+export default function AuthLayout({ children }: AuthLayoutProps) {
+  return (
+    <div className={styles.wrapper}>
+      <Row
+        gutter={[32, 32]}
+        justify="center"
+        align="middle"
+        className={styles.row}
+      >
+        <Col xs={24} lg={12} className={styles.column}>
+          <ImageContainer />
+        </Col>
+        <Col xs={24} lg={12} className={styles.column}>
+          {children}
+        </Col>
       </Row>
-   );
+    </div>
+  );
 }

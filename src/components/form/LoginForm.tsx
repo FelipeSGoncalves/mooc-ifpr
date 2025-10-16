@@ -63,8 +63,8 @@ const LoginForm: React.FC = () => {
         <Form.Item className={styles.helper}>
           <Typography.Text>
             Não possui uma conta?{" "}
-            <Link href="/auth/registro" className={styles.link}>
-              Registre-se
+            <Link href="/auth/cadastro" className={styles.link}>
+              Cadastre-se
             </Link>
           </Typography.Text>
         </Form.Item>

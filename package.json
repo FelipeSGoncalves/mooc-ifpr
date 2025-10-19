@@ -13,6 +13,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "antd": "^5.27.4",
+    "dayjs": "^1.11.18",
     "next": "15.4.6",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.6",

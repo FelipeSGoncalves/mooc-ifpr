@@ -1,18 +1,40 @@
-import { Form, Input, Button, Typography } from "antd";
+"use client";
+
+import { useState } from "react";
+import { Form, Input, Button, Typography, message } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import type { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import styles from "./LoginForm.module.css";
+import { login } from "@/services/authService";
 
 interface LoginFormValues {
   email: string;
-  password?: string;
+  password: string;
 }
 
 const LoginForm: React.FC = () => {
-  const onFinish = (values: LoginFormValues) => {
-    console.log("Dados recebidos do formulário: ", values); // Aqui você implementaria a lógica de autenticação
-    alert(`Login com Email: ${values.email}`);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: LoginFormValues) => {
+    setLoading(true);
+    try {
+      const { token } = await login(values);
+      localStorage.setItem("jwt_token", token);
+      message.success("Login realizado com sucesso!");
+      router.push("/dashboard");
+    } catch (error) {
+      console.error("Falha ao autenticar:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível realizar o login.";
+      message.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
   const onFinishFailed = (errorInfo: ValidateErrorEntity<LoginFormValues>) => {
     console.log("Falha ao submeter:", errorInfo);
@@ -70,8 +92,14 @@ const LoginForm: React.FC = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" block size="large">
-            Enviar
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            size="large"
+            loading={loading}
+          >
+            Entrar
           </Button>
         </Form.Item>
       </Form>

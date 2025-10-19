@@ -1,23 +1,71 @@
 "use client";
 
-import { Button, Form, Input, Typography } from "antd";
-import { LockOutlined, MailOutlined, UserOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import {
+  Button,
+  DatePicker,
+  Form,
+  Input,
+  Typography,
+  message,
+} from "antd";
+import {
+  IdcardOutlined,
+  LockOutlined,
+  MailOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import type { ValidateErrorEntity } from "rc-field-form/lib/interface";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { Dayjs } from "dayjs";
 
 import styles from "./RegisterForm.module.css";
+import { registerUser } from "@/services/authService";
 
 interface RegisterFormValues {
-  name: string;
+  fullName: string;
+  cpf: string;
+  birthDate?: Dayjs;
   email: string;
   password: string;
   confirmPassword: string;
 }
 
 const RegisterForm: React.FC = () => {
-  const onFinish = (values: RegisterFormValues) => {
-    console.log("Dados recebidos do formulário de cadastro:", values);
-    alert(`Cadastro realizado para ${values.name}`);
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: RegisterFormValues) => {
+    if (!values.birthDate) {
+      message.error("Informe sua data de nascimento.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const payload = {
+        fullName: values.fullName,
+        cpf: values.cpf.replace(/\D/g, ""),
+        birthDate: values.birthDate.format("YYYY-MM-DD"),
+        email: values.email,
+        password: values.password,
+      };
+
+      await registerUser(payload);
+      message.success("Cadastro realizado com sucesso! Faça login para continuar.");
+      router.push("/auth/login");
+    } catch (error) {
+      console.error("Falha ao cadastrar usuário:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Não foi possível concluir o cadastro.";
+      message.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onFinishFailed = (
@@ -48,13 +96,57 @@ const RegisterForm: React.FC = () => {
       >
         <Form.Item
           label="Nome completo"
-          name="name"
+          name="fullName"
           rules={[{ required: true, message: "Informe seu nome completo." }]}
         >
           <Input
             prefix={<UserOutlined className="site-form-item-icon" />}
             placeholder="Seu nome"
             size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="CPF"
+          name="cpf"
+          rules={[
+            { required: true, message: "Informe seu CPF." },
+            () => ({
+              validator(_, value) {
+                if (!value) {
+                  return Promise.resolve();
+                }
+
+                const digits = String(value).replace(/\D/g, "");
+                if (digits.length === 11) {
+                  return Promise.resolve();
+                }
+
+                return Promise.reject(
+                  new Error("O CPF deve conter 11 dígitos numéricos.")
+                );
+              },
+            }),
+          ]}
+        >
+          <Input
+            prefix={<IdcardOutlined className="site-form-item-icon" />}
+            placeholder="000.000.000-00"
+            size="large"
+            maxLength={14}
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Data de nascimento"
+          name="birthDate"
+          rules={[{ required: true, message: "Informe sua data de nascimento." }]}
+        >
+          <DatePicker
+            style={{ width: "100%" }}
+            format="DD/MM/YYYY"
+            size="large"
+            placeholder="Selecione"
           />
         </Form.Item>
 
@@ -114,7 +206,13 @@ const RegisterForm: React.FC = () => {
         </Form.Item>
 
         <Form.Item>
-          <Button type="primary" htmlType="submit" block size="large">
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            size="large"
+            loading={loading}
+          >
             Criar conta
           </Button>
         </Form.Item>

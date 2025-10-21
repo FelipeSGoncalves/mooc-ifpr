@@ -1,0 +1,15 @@
+.container {
+  background: var(--cor-fundo-card);
+  padding: 24px;
+  border-radius: var(--raio-borda-padrao);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  margin-bottom: 24px;
+}
+
+.title {
+  margin-bottom: 24px !important;
+}

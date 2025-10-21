@@ -133,8 +133,10 @@ export default function ApresentacaoCursoPage() {
     }
     
     const reorderPayload = {
-        lessons: lessons.map(lesson => ({ id: lesson.id, newOrder: lesson.ordem }))
+        aulas: lessons.map(lesson => ({ id: lesson.id, ordemAula: lesson.ordem }))
     };
+
+    console.log(reorderPayload);
 
     try {
         const response = await fetch(`${API_BASE_URL}/courses/${id}/lessons/reorder`, {
@@ -246,16 +248,18 @@ export default function ApresentacaoCursoPage() {
                 dataSource={lessons}
                 renderItem={(lesson) => (
                   
-                  <SortableLesson  key={lesson.id} lesson={lesson} onDelete={handleDeleteLesson} />
+                  <SortableLesson  key={lesson.ordem} lesson={lesson} onDelete={handleDeleteLesson} />
                 )}
                 locale={{ emptyText: "Nenhuma aula cadastrada." }}
               />
             </SortableContext>
           </DndContext>
           
-          <Button type="dashed" icon={<PlusOutlined />} className={styles.addLessonButton}>
-            Adicionar Aula
-          </Button>
+          <Link href={`/criar-aula?courseId=${course.id}`}>
+            <Button type="primary" icon={<PlusOutlined />} className={styles.addLessonButton}>
+              Adicionar Aula
+            </Button>
+          </Link>
         </div>
       )}
     </div>

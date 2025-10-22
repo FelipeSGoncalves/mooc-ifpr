@@ -1,0 +1,12 @@
+.container {
+  display: flex;
+  flex-direction: row; /* Garante que fique sempre lado a lado */
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex-grow: 1; /* Faz o conteúdo ocupar todo o espaço restante */
+  padding: 24px;
+  background-color: var(--cor-fundo-pagina);
+  overflow-y: auto;
+}

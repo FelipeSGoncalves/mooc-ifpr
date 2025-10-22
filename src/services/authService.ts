@@ -1,4 +1,5 @@
 import { apiRequest, ApiError } from "./api";
+import { destroyCookie } from 'nookies';
 
 export interface LoginPayload {
   email: string;
@@ -64,4 +65,16 @@ export async function registerUser(payload: RegisterPayload) {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+
+
+export function logout() {
+  // Remove o cookie de autenticação
+  destroyCookie(null, 'jwt_token', { path: '/' });
+  
+  // Opcional: Limpar qualquer outro cache do lado do cliente se necessário
+  
+  // Redireciona para a página de login
+  window.location.href = '/auth/login';
 }

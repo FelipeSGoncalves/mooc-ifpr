@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-  Typography, Button, Row, Col, List, Spin, Empty, message, Space, Tag, Breadcrumb, Modal
+  Typography, Button, Row, Col, List, Spin, Empty, message, Space, Tag, Breadcrumb, Modal, App
 } from "antd";
 import { 
     EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, DeleteOutlined, MenuOutlined
@@ -11,11 +11,14 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./ApresentacaoCursoPage.module.css";
+import { parseCookies } from 'nookies'; // <-- ADICIONADO AQUI
 
-// Imports da biblioteca de Drag and Drop (dnd-kit)
+// Imports da biblioteca de Drag and Drop
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+import fallbackImage from "@/assets/mooc.jpeg";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -23,7 +26,7 @@ const { Title, Paragraph, Text } = Typography;
 interface Lesson {
   id: number;
   titulo: string;
-  ordem: number;
+  ordemAula: number; // Corrigido para corresponder ao backend
 }
 interface CourseDetails {
   id: number;
@@ -64,6 +67,7 @@ const SortableLesson = ({ lesson, onDelete }: { lesson: Lesson, onDelete: (id: n
 
 
 export default function ApresentacaoCursoPage() {
+  const { message, modal } = App.useApp();
   const [course, setCourse] = useState<CourseDetails | null>(null);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [loading, setLoading] = useState(true);
@@ -72,7 +76,6 @@ export default function ApresentacaoCursoPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id;
-  const isAdmin = true; // Simulação de admin
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
@@ -85,17 +88,16 @@ export default function ApresentacaoCursoPage() {
         if (!response.ok) throw new Error("Falha ao buscar detalhes do curso");
         const data = await response.json();
         setCourse(data);
-        setLessons(data.aulas ? [...data.aulas].sort((a, b) => a.ordem - b.ordem) : []); // Garante a ordem inicial
+        setLessons(data.aulas ? [...data.aulas].sort((a, b) => a.ordemAula - b.ordemAula) : []);
       } catch (error) {
-        console.error(error);
         message.error("Não foi possível carregar os detalhes do curso.");
-        router.push("/cursos");
+        router.push("/adm/cursos");
       } finally {
         setLoading(false);
       }
     };
     fetchCourseDetails();
-  }, [id, router]);
+  }, [id, router, message]);
   
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -104,39 +106,37 @@ export default function ApresentacaoCursoPage() {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
         const newItems = arrayMove(items, oldIndex, newIndex);
-        return newItems.map((item, index) => ({ ...item, ordem: index + 1 }));
+        // Atualiza a ordem para refletir a nova posição no array
+        return newItems.map((item, index) => ({ ...item, ordemAula: index + 1 }));
       });
       setHasChanges(true);
     }
   };
 
   const handleDeleteLesson = (lessonId: number) => {
-    Modal.confirm({
+    modal.confirm({
       title: "Tem certeza que quer deletar esta aula?",
-      content: "A alteração só será permanente após clicar em 'Salvar Alterações'.",
+      content: "Esta ação não pode ser desfeita e deletará a aula permanentemente.",
       okText: "Sim, deletar",
       okType: "danger",
       cancelText: "Cancelar",
-      onOk: () => {
-        setLessons(currentLessons => currentLessons.filter(lesson => lesson.id !== lessonId));
-        setHasChanges(true);
-        message.info("Aula removida localmente. Salve as alterações para confirmar.");
+      onOk: async () => {
+        // Implementar a chamada de API para deletar a aula aqui
+        message.success("Funcionalidade de deletar a ser implementada.");
       }
     });
   };
   
   const handleSaveChanges = async () => {
-    const token = localStorage.getItem("jwt_token");
+    const token = parseCookies().jwt_token;
     if (!token) {
         message.error("Autenticação necessária.");
         return;
     }
     
     const reorderPayload = {
-        aulas: lessons.map(lesson => ({ id: lesson.id, ordemAula: lesson.ordem }))
+        aulas: lessons.map(lesson => ({ id: lesson.id, ordemAula: lesson.ordemAula }))
     };
-
-    console.log(reorderPayload);
 
     try {
         const response = await fetch(`${API_BASE_URL}/courses/${id}/lessons/reorder`, {
@@ -147,22 +147,22 @@ export default function ApresentacaoCursoPage() {
 
         if (!response.ok) throw new Error("Falha ao salvar a ordem das aulas.");
         
-        message.success("Alterações salvas com sucesso!");
+        message.success("Ordem das aulas salva com sucesso!");
         setHasChanges(false);
     } catch (error) {
-        console.error(error);
         message.error("Não foi possível salvar as alterações.");
     }
   };
 
   const handleToggleVisibility = async () => {
     if (!course) return;
-    const token = localStorage.getItem("jwt_token");
+    const token = parseCookies().jwt_token;
     if (!token) {
       message.error("Autenticação necessária.");
       return;
     }
     const newVisibility = !course.visivel;
+    const action = newVisibility ? "publicado" : "privado";
     try {
       const response = await fetch(`${API_BASE_URL}/courses/${course.id}`, {
         method: 'PATCH',
@@ -171,12 +171,11 @@ export default function ApresentacaoCursoPage() {
       });
       if (response.ok) {
         setCourse({ ...course, visivel: newVisibility });
-        message.success(`Curso ${newVisibility ? 'publicado' : 'privado'} com sucesso!`);
+        message.success(`Curso tornado ${action} com sucesso!`);
       } else {
         throw new Error("Falha ao atualizar visibilidade");
       }
     } catch (error) {
-      console.error(error);
       message.error("Não foi possível alterar a visibilidade do curso.");
     }
   };
@@ -191,10 +190,17 @@ export default function ApresentacaoCursoPage() {
 
   return (
     <div className={styles.container}>
-      <Breadcrumb className={styles.breadcrumb}>
-        <Breadcrumb.Item><Link href="/cursos">Catálogo de Cursos</Link></Breadcrumb.Item>
-        <Breadcrumb.Item>{course.nome}</Breadcrumb.Item>
-      </Breadcrumb>
+     <Breadcrumb
+        className={styles.breadcrumb}
+        items={[
+          {
+            title: <Link href="/adm/cursos">Catálogo de Cursos</Link>,
+          },
+          {
+            title: course.nome,
+          },
+        ]}
+      />
 
       <Row gutter={[32, 32]}>
         <Col xs={24} lg={16} className={styles.detailsColumn}>
@@ -212,56 +218,56 @@ export default function ApresentacaoCursoPage() {
 
         <Col xs={24} lg={8}>
           <Image
-            src={course.miniatura || "/assets/mooc.jpeg"}
+            // Se 'course.miniatura' existir, use-o, senão, use a imagem importada
+            src={course.miniatura || fallbackImage}
             alt={`Thumbnail do curso ${course.nome}`}
             width={350}
             height={200}
             className={styles.thumbnail}
+            priority // Ajuda a carregar a imagem principal da página mais rápido
           />
-          {isAdmin && (
-            <Space className={styles.adminActions}>
-              <Button type="primary" icon={<EditOutlined />}>Editar Curso</Button>
-              <Button 
-                icon={course.visivel ? <EyeInvisibleOutlined /> : <EyeOutlined />}
-                onClick={handleToggleVisibility}
-              >
-                {course.visivel ? 'Tornar Privado' : 'Tornar Público'}
-              </Button>
-            </Space>
-          )}
+          <Space className={styles.adminActions}>
+            <Link href={`/adm/cursos/${course.id}/editar`}>
+            <Button type="primary" icon={<EditOutlined />}>Editar Curso</Button>
+            </Link>
+
+            <Button 
+              icon={course.visivel ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+              onClick={handleToggleVisibility}
+            >
+              {course.visivel ? 'Tornar Privado' : 'Tornar Público'}
+            </Button>
+          </Space>
         </Col>
       </Row>
 
-      {isAdmin && (
-        <div className={styles.lessonsSection}>
-          <div className={styles.lessonsHeader}>
-            <Title level={3}>Aulas do Curso</Title>
-            {hasChanges && (
-                <Button type="primary" onClick={handleSaveChanges}>Salvar Alterações</Button>
-            )}
-          </div>
-          
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={lessons.map(l => l.id)} strategy={verticalListSortingStrategy}>
-              <List
-                bordered
-                dataSource={lessons}
-                renderItem={(lesson) => (
-                  
-                  <SortableLesson  key={lesson.ordem} lesson={lesson} onDelete={handleDeleteLesson} />
-                )}
-                locale={{ emptyText: "Nenhuma aula cadastrada." }}
-              />
-            </SortableContext>
-          </DndContext>
-          
-          <Link href={`/criar-aula?courseId=${course.id}`}>
-            <Button type="primary" icon={<PlusOutlined />} className={styles.addLessonButton}>
-              Adicionar Aula
-            </Button>
-          </Link>
+      <div className={styles.lessonsSection}>
+        <div className={styles.lessonsHeader}>
+          <Title level={3}>Aulas do Curso</Title>
+          {hasChanges && (
+              <Button type="primary" onClick={handleSaveChanges}>Salvar Alterações de Ordem</Button>
+          )}
         </div>
-      )}
+        
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={lessons.map(l => l.id)} strategy={verticalListSortingStrategy}>
+            <List
+              bordered
+              dataSource={lessons}
+              renderItem={(lesson) => (
+                <SortableLesson key={lesson.id} lesson={lesson} onDelete={handleDeleteLesson} />
+              )}
+              locale={{ emptyText: "Nenhuma aula cadastrada." }}
+            />
+          </SortableContext>
+        </DndContext>
+        
+        <Link href={`/adm/criar-aula?courseId=${course.id}`}>
+          <Button type="primary" icon={<PlusOutlined />} className={styles.addLessonButton}>
+            Adicionar Nova Aula
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }

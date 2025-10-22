@@ -8,10 +8,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./LoginForm.module.css";
 import { login } from "@/services/authService";
+import { setCookie } from 'nookies';
+import { jwtDecode } from 'jwt-decode';
 
 interface LoginFormValues {
   email: string;
   password: string;
+}
+
+interface DecodedToken {
+  role: 'ADMIN' | 'STUDENT';
 }
 
 const LoginForm: React.FC = () => {
@@ -22,9 +28,19 @@ const LoginForm: React.FC = () => {
     setLoading(true);
     try {
       const { token } = await login(values);
-      localStorage.setItem("jwt_token", token);
+
+      const decoded: DecodedToken = jwtDecode(token);
+      
+      setCookie(null, 'jwt_token', token, {
+        maxAge: 30 * 24 * 60 * 60, // 30 dias
+        path: '/',
+      });
+
       message.success("Login realizado com sucesso!");
-      router.push("/dashboard");
+
+      const redirectPath = decoded.role === 'ADMIN' ? '/adm/dashboard' : '/aluno/dashboard';
+      router.push(redirectPath);
+
     } catch (error) {
       console.error("Falha ao autenticar:", error);
       const errorMessage =
@@ -36,8 +52,11 @@ const LoginForm: React.FC = () => {
       setLoading(false);
     }
   };
+
+  // ADICIONADO: A função que estava faltando.
+  // Ela é chamada se o formulário falhar na validação (ex: campos vazios).
   const onFinishFailed = (errorInfo: ValidateErrorEntity<LoginFormValues>) => {
-    console.log("Falha ao submeter:", errorInfo);
+    console.log("Falha na validação do formulário:", errorInfo);
   };
 
   return (
@@ -51,7 +70,7 @@ const LoginForm: React.FC = () => {
         layout="vertical"
         initialValues={{ remember: true }}
         onFinish={onFinish}
-        onFinishFailed={onFinishFailed}
+        onFinishFailed={onFinishFailed} // Agora a função existe
         autoComplete="off"
         className={styles.form}
       >

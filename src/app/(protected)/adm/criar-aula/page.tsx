@@ -6,46 +6,47 @@ import {
   Form,
   Input,
   Typography,
-  message,
   Space,
   Breadcrumb,
+  App, // 1. Importar 'App' do Ant Design
 } from "antd";
 import { ArrowLeftOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./CriarAula.module.css";
+import { parseCookies } from "nookies"; // Importando para ler o cookie
+import { apiRequest, ApiError } from "@/services/api"; // Importando para chamadas de API
 
 const { Title } = Typography;
-
-const API_BASE_URL = "http://localhost:8080/mooc";
 
 export default function CriarAulaPage() {
   const [form] = Form.useForm();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [loading, setLoading] = useState(false);
   
+  // 2. Obter a instância do 'message' a partir do hook
+  const { message } = App.useApp();
+
+  const [loading, setLoading] = useState(false);
   const courseId = searchParams.get('courseId');
 
   useEffect(() => {
     if (!courseId) {
       message.error("ID do curso não encontrado. Selecione um curso primeiro.");
-      router.push("/cursos");
+      router.push("/adm/cursos");
     }
-  }, [courseId, router]);
+  }, [courseId, router, message]); // Adicionar 'message' como dependência
 
   const onFinish = async (values: any) => {
     setLoading(true);
 
-    // CORREÇÃO: Os nomes das chaves foram "traduzidos" para o padrão em português 
-    // que o backend parece estar a esperar, apesar do que está no DTO.
     const lessonData = {
       titulo: values.titulo,
       descricao: values.descricao,
       urlVideo: values.urlVideo,
     };
 
-    const token = localStorage.getItem("jwt_token");
+    const token = parseCookies().jwt_token;
     if (!token) {
       message.error("Você não está autenticado.");
       setLoading(false);
@@ -53,26 +54,19 @@ export default function CriarAulaPage() {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/courses/${courseId}/lessons`, {
+      await apiRequest(`/courses/${courseId}/lessons`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { Authorization: `Bearer ${token}` },
         body: JSON.stringify(lessonData),
       });
 
-      if (response.ok) {
-        message.success("Aula criada com sucesso!");
-        router.push(`/cursos/${courseId}`);
-      } else {
-        const errorData = await response.json();
-        const detailedMessage = errorData.errors ? Object.values(errorData.errors)[0] : (errorData.message || "Falha ao criar a aula.");
-        throw new Error(detailedMessage as string);
-      }
-    } catch (error: any) {
-      console.error("Erro:", error);
-      message.error(error.message);
+      message.success("Aula criada com sucesso!");
+      router.push(`/adm/cursos/${courseId}`);
+
+    } catch (error) {
+      console.error("Erro ao criar aula:", error);
+      const errorMessage = error instanceof ApiError ? error.message : "Ocorreu um erro desconhecido.";
+      message.error(`Falha ao criar aula: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -83,8 +77,8 @@ export default function CriarAulaPage() {
        <Breadcrumb
           className={styles.breadcrumb}
           items={[
-            { title: <Link href="/cursos">Catálogo de Cursos</Link> },
-            { title: <Link href={`/cursos/${courseId}`}>Detalhes do Curso</Link> },
+            { title: <Link href="/adm/cursos">Catálogo de Cursos</Link> },
+            { title: <Link href={`/adm/cursos/${courseId}`}>Detalhes do Curso</Link> },
             { title: 'Criar Aula' },
           ]}
         />

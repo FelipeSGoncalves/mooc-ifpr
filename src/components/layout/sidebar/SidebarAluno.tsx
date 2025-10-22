@@ -3,17 +3,21 @@
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FC } from "react"; // Removido o 'useEffect' dos imports
+import { FC } from "react";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 
-import criarCursoIcon from "@/assets/criar_curso.png";
-import cursosIcon from "@/assets/catalogo_cursos_alunos.png";
-import dashboardIcon from "@/assets/dashboard_adm.png";
-import solicitacoesIcon from "@/assets/solicitacoes_adm.png";
+// 1. Importar os ícones corretos para o aluno
+import dashboardIcon from "@/assets/dashboard_adm.png"; // Reutilizando o de admin
+import catalogoIcon from "@/assets/catalogo_cursos_alunos.png";
+import meusCursosIcon from "@/assets/meus_cursos_alunos.png";
+import certificadosIcon from "@/assets/certificados_alunos.png";
 import userIcon from "@/assets/icon_perfil.png";
 import logoImage from "@/assets/logo_mooc.png";
 
-import styles from "./SidebarProtected.module.css";
+// 2. Usar o CSS genérico que você já tem para manter o estilo
+import styles from "./Sidebar.module.css"; 
+
+import { logout } from '@/services/authService';
 
 type NavItem = {
   name: string;
@@ -21,11 +25,12 @@ type NavItem = {
   path: string;
 };
 
+// 3. Definir os itens de navegação do Aluno, conforme a imagem
 const navItems: NavItem[] = [
-  { name: "Dashboard", icon: dashboardIcon, path: "/dashboard" },
-  { name: "Criar Curso", icon: criarCursoIcon, path: "/criar-curso" },
-  { name: "Cursos", icon: cursosIcon, path: "/cursos" },
-  { name: "Solicitações", icon: solicitacoesIcon, path: "/solicitacoes" },
+  { name: "Dashboard", icon: dashboardIcon, path: "/aluno/dashboard" },
+  { name: "Catálogo Cursos", icon: catalogoIcon, path: "/aluno/catalogo" },
+  { name: "Meus cursos", icon: meusCursosIcon, path: "/aluno/meus-cursos" },
+  { name: "Certificados", icon: certificadosIcon, path: "/aluno/certificados" },
 ];
 
 interface SidebarProps {
@@ -33,10 +38,8 @@ interface SidebarProps {
   setCollapsed: (collapsed: boolean) => void;
 }
 
-const SidebarProtected: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
+const SidebarAluno: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
   const pathname = usePathname();
-
-  // O BLOCO 'useEffect' FOI REMOVIDO DAQUI
 
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}>
@@ -79,9 +82,19 @@ const SidebarProtected: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
             <span className={styles.icon}>
               <Image src={userIcon} alt="User profile icon" width={24} height={24} />
             </span>
-            <span className={styles.navText}>Meu Perfil</span>
+            <span className={styles.navText}>Perfil</span>
           </button>
         </div>
+        <button
+            className={styles.profileButton} // Reutilizando um estilo
+            onClick={() => logout()}
+        >
+            <span className={styles.icon}>
+                {/* Você pode usar um ícone específico de logout aqui */}
+                <ArrowLeftOutlined /> 
+            </span>
+            <span className={styles.navText}>Sair</span>
+        </button>
         <button
             className={styles.collapseButton}
             onClick={() => setCollapsed(!collapsed)}
@@ -96,4 +109,4 @@ const SidebarProtected: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
   );
 };
 
-export default SidebarProtected;
+export default SidebarAluno;

@@ -2,6 +2,7 @@
 import { apiRequest, ApiError, API_BASE_URL } from "./api";
 import { parseCookies } from "nookies";
 
+
 // Interface para as Áreas de Conhecimento
 export interface KnowledgeArea {
   id: number;
@@ -94,14 +95,35 @@ export interface CourseDetails {
   cargaHoraria: number;
   visivel: boolean;
   areaConhecimento: { id: number; nome: string };
-  aulas: any[]; // Defina um tipo melhor se necessário
+  aulas: any[]; 
+  
+  // Propriedade que estava faltando, adicionada como opcional
+  inscricaoInfo?: {
+    inscricaoId: number;
+    estaInscrito: boolean;
+    concluido: boolean;
+    inscritoEm: string; // Vem como string no JSON
+    concluidoEm: string | null;
+    totalAulas: number;
+    aulasConcluidas: number;
+  };
 }
 
 /**
  * Busca os detalhes completos de um único curso.
  */
 export async function getCourseDetails(id: string | number): Promise<CourseDetails> {
-  return apiRequest<CourseDetails>(`/courses/${id}`);
+  const token = parseCookies().jwt_token;
+
+  // CORREÇÃO: Construímos o objeto de headers de forma condicional
+  // para evitar o erro de tipo do TypeScript.
+  return apiRequest<CourseDetails>(`/courses/${id}`, {
+    headers: {
+      // Esta sintaxe garante que a propriedade Authorization SÓ é adicionada
+      // ao objeto se a variável 'token' tiver um valor.
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+  });
 }
 
 /**

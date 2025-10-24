@@ -28,11 +28,11 @@ type NavItem = {
 // 3. Definir os itens de navegação do Aluno, conforme a imagem
 const navItems: NavItem[] = [
   { name: "Dashboard", icon: dashboardIcon, path: "/aluno/dashboard" },
-  { name: "Catálogo Cursos", icon: catalogoIcon, path: "/aluno/catalogo" },
+  // CORREÇÃO: Alterado de '/aluno/catalogo' para '/aluno/cursos'
+  { name: "Catálogo Cursos", icon: catalogoIcon, path: "/aluno/cursos" },
   { name: "Meus cursos", icon: meusCursosIcon, path: "/aluno/meus-cursos" },
   { name: "Certificados", icon: certificadosIcon, path: "/aluno/certificados" },
 ];
-
 interface SidebarProps {
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;

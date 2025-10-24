@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-  Typography, Button, Row, Col, List, Spin, Empty, message, Space, Tag, Breadcrumb, Modal, App
+  Typography, Button, Row, Col, List, Spin, Empty, App, Space, Tag, Breadcrumb, Modal
 } from "antd";
 import { 
     EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, DeleteOutlined, MenuOutlined
@@ -11,50 +11,34 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./ApresentacaoCursoPage.module.css";
-import { parseCookies } from 'nookies'; // <-- ADICIONADO AQUI
+import { parseCookies } from 'nookies';
 
 // Imports da biblioteca de Drag and Drop
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
+// 1. IMPORTAÇÕES ATUALIZADAS
+import { getCourseDetails, CourseDetails, updateCourse } from "@/services/courseService";
+import { apiRequest, ApiError } from "@/services/api";
 import fallbackImage from "@/assets/mooc.jpeg";
 
 const { Title, Paragraph, Text } = Typography;
 
-// --- Interfaces ---
+// --- Interface para a Aula (ajustada para o que vem da API) ---
 interface Lesson {
   id: number;
   titulo: string;
-  ordemAula: number; // Corrigido para corresponder ao backend
+  ordemAula: number;
 }
-interface CourseDetails {
-  id: number;
-  nome: string;
-  descricao: string;
-  nomeProfessor: string;
-  miniatura: string | null;
-  cargaHoraria: number;
-  visivel: boolean;
-  areaConhecimento: { id: number; nome: string };
-  aulas: Lesson[];
-}
-
-const API_BASE_URL = "http://localhost:8080/mooc";
 
 // Componente de Item Arrastável
 const SortableLesson = ({ lesson, onDelete }: { lesson: Lesson, onDelete: (id: number) => void }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: lesson.id });
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
+    const style = { transform: CSS.Transform.toString(transform), transition };
 
     return (
-        <List.Item
-            ref={setNodeRef}
-            style={style}
-            className={styles.lessonItem}
+        <List.Item ref={setNodeRef} style={style} className={styles.lessonItem}
             actions={[
                 <Button type="link" danger icon={<DeleteOutlined />} onClick={() => onDelete(lesson.id)} />,
                 <Button type="text" {...attributes} {...listeners} icon={<MenuOutlined />} className={styles.dragHandle} />
@@ -65,7 +49,6 @@ const SortableLesson = ({ lesson, onDelete }: { lesson: Lesson, onDelete: (id: n
     );
 };
 
-
 export default function ApresentacaoCursoPage() {
   const { message, modal } = App.useApp();
   const [course, setCourse] = useState<CourseDetails | null>(null);
@@ -75,7 +58,7 @@ export default function ApresentacaoCursoPage() {
   
   const params = useParams();
   const router = useRouter();
-  const id = params.id;
+  const id = params.id as string;
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
@@ -84,9 +67,8 @@ export default function ApresentacaoCursoPage() {
     const fetchCourseDetails = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${API_BASE_URL}/courses/${id}`);
-        if (!response.ok) throw new Error("Falha ao buscar detalhes do curso");
-        const data = await response.json();
+        // 2. USANDO O SERVIÇO CENTRALIZADO
+        const data = await getCourseDetails(id);
         setCourse(data);
         setLessons(data.aulas ? [...data.aulas].sort((a, b) => a.ordemAula - b.ordemAula) : []);
       } catch (error) {
@@ -106,7 +88,6 @@ export default function ApresentacaoCursoPage() {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
         const newItems = arrayMove(items, oldIndex, newIndex);
-        // Atualiza a ordem para refletir a nova posição no array
         return newItems.map((item, index) => ({ ...item, ordemAula: index + 1 }));
       });
       setHasChanges(true);
@@ -116,14 +97,11 @@ export default function ApresentacaoCursoPage() {
   const handleDeleteLesson = (lessonId: number) => {
     modal.confirm({
       title: "Tem certeza que quer deletar esta aula?",
-      content: "Esta ação não pode ser desfeita e deletará a aula permanentemente.",
+      content: "Esta ação não pode ser desfeita.",
       okText: "Sim, deletar",
       okType: "danger",
       cancelText: "Cancelar",
-      onOk: async () => {
-        // Implementar a chamada de API para deletar a aula aqui
-        message.success("Funcionalidade de deletar a ser implementada.");
-      }
+      onOk: async () => { message.info("Funcionalidade de deletar a ser implementada."); }
     });
   };
   
@@ -139,14 +117,11 @@ export default function ApresentacaoCursoPage() {
     };
 
     try {
-        const response = await fetch(`${API_BASE_URL}/courses/${id}/lessons/reorder`, {
+        await apiRequest(`/courses/${id}/lessons/reorder`, {
             method: 'PATCH',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            headers: { Authorization: `Bearer ${token}` },
             body: JSON.stringify(reorderPayload)
         });
-
-        if (!response.ok) throw new Error("Falha ao salvar a ordem das aulas.");
-        
         message.success("Ordem das aulas salva com sucesso!");
         setHasChanges(false);
     } catch (error) {
@@ -156,25 +131,21 @@ export default function ApresentacaoCursoPage() {
 
   const handleToggleVisibility = async () => {
     if (!course) return;
+    
     const token = parseCookies().jwt_token;
     if (!token) {
       message.error("Autenticação necessária.");
       return;
     }
+
     const newVisibility = !course.visivel;
     const action = newVisibility ? "publicado" : "privado";
     try {
-      const response = await fetch(`${API_BASE_URL}/courses/${course.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
-        body: JSON.stringify({ visivel: newVisibility }),
-      });
-      if (response.ok) {
-        setCourse({ ...course, visivel: newVisibility });
-        message.success(`Curso tornado ${action} com sucesso!`);
-      } else {
-        throw new Error("Falha ao atualizar visibilidade");
-      }
+      // 3. USANDO O SERVIÇO DE UPDATE (mais limpo, mas PUT funciona aqui)
+      await updateCourse(course.id, { ...course, nome: course.nome, descricao: course.descricao, nomeProfessor: course.nomeProfessor, cargaHoraria: course.cargaHoraria, areaConhecimentoId: course.areaConhecimento.id, campusId: 1, visivel: newVisibility });
+
+      setCourse({ ...course, visivel: newVisibility });
+      message.success(`Curso tornado ${action} com sucesso!`);
     } catch (error) {
       message.error("Não foi possível alterar a visibilidade do curso.");
     }
@@ -190,15 +161,12 @@ export default function ApresentacaoCursoPage() {
 
   return (
     <div className={styles.container}>
-     <Breadcrumb
+      {/* 4. SINTAXE DO BREADCRUMB CORRIGIDA */}
+      <Breadcrumb
         className={styles.breadcrumb}
         items={[
-          {
-            title: <Link href="/adm/cursos">Catálogo de Cursos</Link>,
-          },
-          {
-            title: course.nome,
-          },
+          { title: <Link href="/adm/cursos">Catálogo de Cursos</Link> },
+          { title: course.nome },
         ]}
       />
 
@@ -218,19 +186,17 @@ export default function ApresentacaoCursoPage() {
 
         <Col xs={24} lg={8}>
           <Image
-            // Se 'course.miniatura' existir, use-o, senão, use a imagem importada
             src={course.miniatura || fallbackImage}
             alt={`Thumbnail do curso ${course.nome}`}
             width={350}
             height={200}
             className={styles.thumbnail}
-            priority // Ajuda a carregar a imagem principal da página mais rápido
+            priority
           />
           <Space className={styles.adminActions}>
             <Link href={`/adm/cursos/${course.id}/editar`}>
-            <Button type="primary" icon={<EditOutlined />}>Editar Curso</Button>
+              <Button type="primary" icon={<EditOutlined />}>Editar Curso</Button>
             </Link>
-
             <Button 
               icon={course.visivel ? <EyeInvisibleOutlined /> : <EyeOutlined />}
               onClick={handleToggleVisibility}

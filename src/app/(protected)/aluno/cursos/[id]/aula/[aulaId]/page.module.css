@@ -1,0 +1,76 @@
+.wrapper {
+  padding: 24px;
+}
+
+.playerLayout {
+  display: flex;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.videoContent {
+  flex: 3; /* Ocupa 3/4 do espaço */
+}
+
+.playerWrapper {
+  position: relative;
+  padding-top: 56.25%; /* Proporção 16:9 */
+  background: #000; /* Fundo preto para debug, confirma que o espaço do player existe */
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.reactPlayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.lessonHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lessonDescription {
+  margin-top: 8px;
+  color: #595959;
+}
+
+.playlistSidebar {
+  flex: 1; /* Ocupa 1/4 do espaço */
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 8px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.lessonLink {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.checkIcon {
+  color: #52c41a;
+  margin-left: 8px;
+}
+
+.activeLesson {
+  background-color: #e6f7ff;
+  font-weight: bold;
+  border-color: #91d5ff !important;
+}
+
+.navigationButtons {
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+}

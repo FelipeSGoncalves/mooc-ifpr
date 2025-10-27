@@ -2,18 +2,20 @@
 
 import { useState, useEffect } from "react";
 import {
-  Typography, Button, Row, Col, List, Spin, Empty, App, Space, Progress, Breadcrumb
+  Typography, Button, Row, Col, List, Spin, Empty, App, Space, Progress, Breadcrumb, Tooltip
 } from "antd";
-import { PlayCircleOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import { PlayCircleOutlined, CheckCircleOutlined, DownloadOutlined, HourglassOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import styles from "./page.module.css"; // Vamos criar este CSS
+import styles from "./page.module.css";
 
 import { getCourseDetails, CourseDetails } from "@/services/courseService";
 import { enrollInCourse } from "@/services/enrollmentService";
+import { generateCertificate } from "@/services/certificateService";
 import fallbackImage from "@/assets/mooc.jpeg";
 import { useAuth } from "@/hooks/useAuth";
+import { ApiError } from "@/services/api";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -22,7 +24,8 @@ export default function AlunoCursoPage() {
   const { user } = useAuth();
   const [course, setCourse] = useState<CourseDetails | null>(null);
   const [loading, setLoading] = useState(true);
-  
+  const [actionLoading, setActionLoading] = useState(false);
+
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
@@ -38,7 +41,7 @@ export default function AlunoCursoPage() {
       setCourse(data);
     } catch (error) {
       message.error("Não foi possível carregar os detalhes do curso.");
-      router.push("/aluno/catalogo");
+      router.push("/aluno/cursos");
     } finally {
       setLoading(false);
     }
@@ -46,40 +49,96 @@ export default function AlunoCursoPage() {
 
   useEffect(() => {
     fetchCourseDetails();
-  }, [id]);
-  
+  }, [id, message, router]);
+
   const handleEnroll = async () => {
     if (!user || !course) return;
-
+    setActionLoading(true);
     try {
       await enrollInCourse(course.id);
       message.success("Inscrição realizada com sucesso!");
       fetchCourseDetails();
     } catch (error) {
       message.error("Falha ao se inscrever. Você já pode estar matriculado.");
+    } finally {
+      setActionLoading(false);
     }
   };
-  
-  const renderActionButtons = () => {
-    const isEnrolled = course?.inscricaoInfo?.estaInscrito;
 
-    if (isEnrolled) {
+  const handleGenerateCertificate = async () => {
+    if (!course?.inscricaoInfo) return;
+    setActionLoading(true);
+    try {
+      await generateCertificate(course.inscricaoInfo.inscricaoId);
+      message.success("Download do certificado iniciado!");
+    } catch (error) {
+      const errorMessage = error instanceof ApiError ? error.message : "Ocorreu um erro desconhecido.";
+      message.error(errorMessage);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // --- LÓGICA DE BOTÕES ATUALIZADA ---
+  const renderActionButtons = () => {
+    // Se não estiver inscrito
+    if (!course || !course.inscricaoInfo?.estaInscrito) {
       return (
-        <Space>
-          <Button type="primary" size="large" icon={<PlayCircleOutlined />}>
-            Continuar Assistindo
-          </Button>
-          <Button size="large" danger disabled>
-            Cancelar Inscrição
-          </Button>
-        </Space>
+        <Button type="primary" size="large" onClick={handleEnroll} loading={actionLoading}>
+          Inscrever-se Gratuitamente
+        </Button>
       );
     }
 
+    // Se o curso foi concluído
+    if (course.inscricaoInfo.concluido) {
+      const status = course.inscricaoInfo.certificateStatus;
+
+      if (status === 'aprovado') {
+        return (
+          <Button type="primary" size="large" icon={<DownloadOutlined />} onClick={handleGenerateCertificate} loading={actionLoading}>
+            Baixar Certificado
+          </Button>
+        );
+      }
+      
+      if (status === 'reprovado') {
+        return (
+          <Tooltip title="Sua solicitação foi reprovada pela administração. Entre em contato para mais detalhes.">
+            <Button type="primary" size="large" icon={<CloseCircleOutlined />} disabled danger>
+              Solicitação Rejeitada
+            </Button>
+          </Tooltip>
+        );
+      }
+
+      // Por padrão (status 'analise' ou indefinido)
+      return (
+        <Tooltip title="Sua solicitação de certificado está sendo analisada pela administração.">
+          <Button type="primary" size="large" icon={<HourglassOutlined />} disabled>
+            Certificado em Análise
+          </Button>
+        </Tooltip>
+      );
+    }
+
+    // Se está inscrito, mas não concluiu
+    const firstUnwatchedLesson = course.aulas.find(aula => !(aula as any).concluido);
+    const continueLink = firstUnwatchedLesson
+      ? `/aluno/cursos/${id}/aula/${firstUnwatchedLesson.id}`
+      : (course.aulas.length > 0 ? `/aluno/cursos/${id}/aula/${course.aulas[0].id}` : '#');
+
     return (
-      <Button type="primary" size="large" onClick={handleEnroll}>
-        Inscrever-se Gratuitamente
-      </Button>
+      <Space>
+        <Link href={continueLink}>
+          <Button type="primary" size="large" icon={<PlayCircleOutlined />}>
+            Continuar Assistindo
+          </Button>
+        </Link>
+        <Button size="large" danger disabled title="Função a ser implementada">
+          Cancelar Inscrição
+        </Button>
+      </Space>
     );
   };
 
@@ -93,14 +152,12 @@ export default function AlunoCursoPage() {
 
   return (
     <div className={styles.container}>
-      <Breadcrumb
+       <Breadcrumb
         items={[
-          // CORREÇÃO: Alterado de '/aluno/catalogo' para '/aluno/cursos'
           { title: <Link href="/aluno/cursos">Catálogo de Cursos</Link> },
           { title: course.nome },
         ]}
       />
-      {/* ... O resto do JSX é igual ao que fizemos antes ... */}
       <Row gutter={[48, 32]}>
           <Col xs={24} lg={16}>
             <Title level={2} style={{ marginBottom: 16 }}>{course.nome}</Title>

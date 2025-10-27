@@ -97,17 +97,20 @@ export interface CourseDetails {
   areaConhecimento: { id: number; nome: string };
   aulas: any[]; 
   
-  // Propriedade que estava faltando, adicionada como opcional
   inscricaoInfo?: {
     inscricaoId: number;
     estaInscrito: boolean;
     concluido: boolean;
-    inscritoEm: string; // Vem como string no JSON
+    inscritoEm: string;
     concluidoEm: string | null;
     totalAulas: number;
     aulasConcluidas: number;
+    // --- CAMPOS ADICIONADOS ---
+    certificateStatus?: 'analise' | 'aprovado' | 'reprovado';
+    certificateStatusDescription?: string;
   };
 }
+
 
 /**
  * Busca os detalhes completos de um único curso.
@@ -115,12 +118,8 @@ export interface CourseDetails {
 export async function getCourseDetails(id: string | number): Promise<CourseDetails> {
   const token = parseCookies().jwt_token;
 
-  // CORREÇÃO: Construímos o objeto de headers de forma condicional
-  // para evitar o erro de tipo do TypeScript.
   return apiRequest<CourseDetails>(`/courses/${id}`, {
     headers: {
-      // Esta sintaxe garante que a propriedade Authorization SÓ é adicionada
-      // ao objeto se a variável 'token' tiver um valor.
       ...(token && { Authorization: `Bearer ${token}` }),
     },
   });

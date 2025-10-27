@@ -78,12 +78,15 @@ const SidebarAluno: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
 
       <div className={styles.footer}>
         <div className={styles.profileContainer}>
-          <button className={styles.profileButton}>
+          <Link 
+            href="/aluno/perfil" 
+            className={`${styles.navLink} ${pathname.startsWith('/aluno/perfil') ? styles.active : ''}`}
+          >
             <span className={styles.icon}>
               <Image src={userIcon} alt="User profile icon" width={24} height={24} />
             </span>
             <span className={styles.navText}>Perfil</span>
-          </button>
+          </Link>
         </div>
         <button
             className={styles.profileButton} // Reutilizando um estilo

@@ -17,6 +17,14 @@ import { apiRequest, ApiError } from "@/services/api";
 const { Title } = Typography;
 const { Dragger } = Upload;
 
+interface CourseFormValues {
+  titulo: string;
+  descricao: string;
+  cargaHoraria: number;
+  nomeProfessor: string;
+  areaConhecimento: number;
+}
+
 export default function CriarCursoPage() {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -37,7 +45,7 @@ export default function CriarCursoPage() {
     fetchKnowledgeAreas();
   }, [message]);
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: CourseFormValues) => {
     setLoading(true);
 
     const courseData = {

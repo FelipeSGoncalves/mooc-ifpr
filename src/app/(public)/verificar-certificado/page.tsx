@@ -1,124 +1,154 @@
 "use client";
 
-import { InboxOutlined } from "@ant-design/icons";
-import { Button, Card, Descriptions, Typography, Upload, message } from "antd";
-import type { UploadFile, UploadProps } from "antd/es/upload/interface";
-import { useMemo, useState } from "react";
-
-import ImageContainer from "@/components/imageContainer/ImageContainer";
-
+import { InboxOutlined, CheckCircleFilled, CloseCircleFilled, SearchOutlined } from "@ant-design/icons";
+import { Button, Card, Descriptions, Typography, Upload, App, Input, Tabs, Space } from "antd";
+import type { RcFile, UploadFile, UploadProps } from "antd/es/upload/interface";
+import { useState } from "react";
+import dayjs from "dayjs";
 import styles from "./page.module.css";
 
-const { Dragger } = Upload;
+import { validateCertificateByPdf, validateCertificateByCode, ValidationResponse } from "@/services/certificateService";
+import { ApiError } from "@/services/api";
 
-const certificateInfo = {
-  aluno: "Artur Henrique",
-  curso: "Primeiros passos com Python",
-  cargaHoraria: "40 horas",
-  dataInicio: "10/09/2023",
-  dataConclusao: "12/11/2023 - 12:32",
-};
+const { Dragger } = Upload;
+const { Title, Paragraph, Text } = Typography;
 
 export default function VerificarCertificado() {
+  const { message } = App.useApp();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [isVerified, setIsVerified] = useState(false);
+  const [validationResult, setValidationResult] = useState<ValidationResponse | null>(null);
+  const [verificationCode, setVerificationCode] = useState("");
 
-  const draggerProps: UploadProps = useMemo(
-    () => ({
-      name: "certificado",
-      multiple: false,
-      accept: ".pdf,.png,.jpg,.jpeg",
-      fileList,
-      beforeUpload: () => false,
-      onChange(info) {
-        setFileList(info.fileList.slice(-1));
-        setIsVerified(false);
-      },
-      onRemove() {
-        setFileList([]);
-        setIsVerified(false);
-        return true;
-      },
-    }),
-    [fileList],
-  );
-
-  const handleVerify = async () => {
-    if (!fileList.length) {
-      message.warning("Selecione ou arraste o arquivo do certificado antes de verificar.");
+  const handleReset = () => {
+    setIsVerifying(false);
+    setValidationResult(null);
+    setFileList([]);
+    setVerificationCode("");
+  };
+  
+  // --- FUNÇÃO CORRIGIDA ---
+  const handleVerifyByFile = async () => {
+    // A verificação agora é mais simples: apenas checa se há um arquivo na lista.
+    if (fileList.length === 0) {
+      message.warning("Por favor, selecione um arquivo PDF para verificar.");
       return;
     }
 
+    setIsVerifying(true);
+    setValidationResult(null);
+
     try {
-      setIsVerifying(true);
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1000);
-      });
-      setIsVerified(true);
-      message.success("Certificado validado com sucesso!");
+      // Acessamos o arquivo diretamente de fileList[0]
+      const file = fileList[0] as RcFile; 
+      const result = await validateCertificateByPdf(file);
+      setValidationResult(result);
+    } catch (error) {
+      const errorMessage = error instanceof ApiError ? error.message : "Erro ao processar o arquivo.";
+      setValidationResult({ isValid: false, message: errorMessage });
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+  // --- FIM DA CORREÇÃO ---
+
+  const handleVerifyByCode = async () => {
+    if (!verificationCode.trim()) {
+      message.warning("Por favor, insira o código do certificado.");
+      return;
+    }
+    setIsVerifying(true);
+    setValidationResult(null);
+    try {
+      const result = await validateCertificateByCode(verificationCode);
+      setValidationResult(result);
+    } catch (error) {
+      const errorMessage = error instanceof ApiError ? error.message : "Código inválido ou erro na verificação.";
+      setValidationResult({ isValid: false, message: errorMessage });
     } finally {
       setIsVerifying(false);
     }
   };
 
+
+  const draggerProps: UploadProps = {
+    name: "certificado",
+    multiple: false,
+    accept: ".pdf",
+    fileList,
+    beforeUpload: (file) => {
+      setFileList([file]);
+      setValidationResult(null);
+      return false;
+    },
+    onRemove: () => handleReset(),
+  };
+
+  const renderResult = () => {
+    if (!validationResult) return null;
+
+    if (!validationResult.isValid) {
+      return (
+        <div className={styles.result}>
+          <Title level={4} className={`${styles.status} ${styles.invalid}`}>
+            <CloseCircleFilled /> Certificado Inválido
+          </Title>
+          <Text>{validationResult.message}</Text>
+        </div>
+      );
+    }
+
+    return (
+      <div className={styles.result}>
+        <Title level={4} className={`${styles.status} ${styles.valid}`}>
+          <CheckCircleFilled /> Certificado Válido e Autêntico!
+        </Title>
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="Aluno">{validationResult.studentName}</Descriptions.Item>
+          <Descriptions.Item label="Curso">{validationResult.courseName}</Descriptions.Item>
+          <Descriptions.Item label="Carga Horária">{validationResult.workload} horas</Descriptions.Item>
+          <Descriptions.Item label="Campus">{validationResult.campusName}</Descriptions.Item>
+          <Descriptions.Item label="Data de Conclusão">
+            {dayjs(validationResult.completionDate).format("DD/MM/YYYY")}
+          </Descriptions.Item>
+        </Descriptions>
+      </div>
+    );
+  };
+  
+  const tabItems = [
+    {
+      key: '1',
+      label: 'Verificar por Arquivo',
+      children: (
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Dragger {...draggerProps}><p className="ant-upload-drag-icon"><InboxOutlined /></p><p className="ant-upload-text">Clique ou arraste o arquivo PDF do certificado</p></Dragger>
+          <Button type="primary" size="large" block onClick={handleVerifyByFile} loading={isVerifying}>Verificar Arquivo</Button>
+        </Space>
+      )
+    },
+    {
+      key: '2',
+      label: 'Verificar por Código',
+      children: (
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Input size="large" placeholder="Digite o código de verificação" value={verificationCode} onChange={(e) => { setVerificationCode(e.target.value); setValidationResult(null); }} />
+          <Button type="primary" size="large" block icon={<SearchOutlined />} onClick={handleVerifyByCode} loading={isVerifying}>Verificar Código</Button>
+        </Space>
+      )
+    }
+  ];
+
   return (
     <section className={styles.wrapper}>
       <div className={styles.inner}>
-        <aside className={styles.hero}>
-          <div className={styles.heroCard}>
-            <ImageContainer />
-          </div>
-        </aside>
-
-        <Card
-          className={styles.card}
-          title={<span className={styles.cardTitle}>Verificação de Certificado</span>}
-          bodyStyle={{ display: "flex", flexDirection: "column", gap: 24 }}
-        >
-          <Typography.Paragraph className={styles.instructions}>
-            Envie o arquivo do certificado ou arraste-o para a área abaixo. Após a verificação,
-            apresentaremos as informações oficiais emitidas pela plataforma.
-          </Typography.Paragraph>
-
-          <Dragger {...draggerProps} className={styles.dragger}>
-            <p className={styles.dragIcon}>
-              <InboxOutlined />
-            </p>
-            <p className={styles.dragTitle}>Arraste o certificado para esta área</p>
-            <p className={styles.dragHint}>ou clique para localizar um arquivo no seu dispositivo</p>
-          </Dragger>
-
-          <Button
-            type="primary"
-            size="large"
-            block
-            className={styles.verifyButton}
-            onClick={handleVerify}
-            loading={isVerifying}
-          >
-            Verificar
-          </Button>
-
-          {isVerified && (
-            <div className={styles.result}>
-              <Typography.Text className={styles.status}>
-                Certificado Válido!
-              </Typography.Text>
-              <Descriptions
-                column={1}
-                colon={false}
-                className={styles.descriptions}
-                items={[
-                  { key: "aluno", label: "Aluno", children: certificateInfo.aluno },
-                  { key: "curso", label: "Curso", children: certificateInfo.curso },
-                  { key: "carga", label: "Carga horária", children: certificateInfo.cargaHoraria },
-                  { key: "inicio", label: "Data de início", children: certificateInfo.dataInicio },
-                  { key: "fim", label: "Data de conclusão", children: certificateInfo.dataConclusao },
-                ]}
-              />
-            </div>
-          )}
+        <Title level={2}>Verificação de Certificado</Title>
+        <Paragraph>
+          Utilize uma das opções abaixo para confirmar a autenticidade de um certificado emitido pela nossa plataforma.
+        </Paragraph>
+        <Card>
+            <Tabs defaultActiveKey="1" items={tabItems} onChange={handleReset} />
+            {validationResult && <div style={{ marginTop: 24 }}>{renderResult()}</div>}
         </Card>
       </div>
     </section>

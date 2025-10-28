@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-  Typography, Button, Row, Col, List, Spin, Empty, App, Space, Tag, Breadcrumb, Modal
+  Typography, Button, Row, Col, List, Spin, Empty, App, Space, Tag, Breadcrumb
 } from "antd";
 import { 
     EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, DeleteOutlined, MenuOutlined
@@ -17,32 +17,25 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEn
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { getCourseDetails, CourseDetails, updateCourse } from "@/services/courseService";
-import { apiRequest, ApiError } from "@/services/api";
+import { getCourseDetails, CourseDetails, LessonSummary, updateCourse } from "@/services/courseService";
+import { apiRequest } from "@/services/api";
 import fallbackImage from "@/assets/mooc.jpeg";
 
 const { Title, Paragraph, Text } = Typography;
 
-interface Lesson {
-  id: number;
-  titulo: string;
-  ordemAula: number;
-}
-
 // Componente de Item Arrastável ATUALIZADO com botão de Editar
-const SortableLesson = ({ lesson, courseId, onDelete }: { lesson: Lesson, courseId: string, onDelete: (id: number) => void }) => {
+const SortableLesson = ({ lesson, courseId, onDelete }: { lesson: LessonSummary; courseId: string; onDelete: (id: number) => void }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: lesson.id });
     const style = { transform: CSS.Transform.toString(transform), transition };
 
     return (
         <List.Item ref={setNodeRef} style={style} className={styles.lessonItem}
             actions={[
-                // --- BOTÃO DE EDITAR ADICIONADO ---
-                <Link href={`/adm/cursos/${courseId}/aula/${lesson.id}/editar`} passHref>
+                <Link key="edit" href={`/adm/cursos/${courseId}/aula/${lesson.id}/editar`} passHref>
                   <Button type="link" icon={<EditOutlined />} />
                 </Link>,
-                <Button type="link" danger icon={<DeleteOutlined />} onClick={() => onDelete(lesson.id)} />,
-                <Button type="text" {...attributes} {...listeners} icon={<MenuOutlined />} className={styles.dragHandle} />
+                <Button key="delete" type="link" danger icon={<DeleteOutlined />} onClick={() => onDelete(lesson.id)} />,
+                <Button key="drag" type="text" {...attributes} {...listeners} icon={<MenuOutlined />} className={styles.dragHandle} />
             ]}
         >
             <List.Item.Meta title={<Text>{lesson.titulo}</Text>} />
@@ -53,7 +46,7 @@ const SortableLesson = ({ lesson, courseId, onDelete }: { lesson: Lesson, course
 export default function ApresentacaoCursoPage() {
   const { message, modal } = App.useApp();
   const [course, setCourse] = useState<CourseDetails | null>(null);
-  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [lessons, setLessons] = useState<LessonSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
   

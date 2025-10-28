@@ -1,19 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Typography,
-  Spin,
   App,
   Table,
   Tag,
   Space,
   Button,
-  Modal,
   Input,
   Radio,
   Empty,
 } from "antd";
+import type { ColumnsType } from "antd/es/table";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import styles from "./SolicitacoesPage.module.css";
@@ -30,7 +29,7 @@ export default function SolicitacoesPage() {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<'analise' | 'aprovado' | 'reprovado' | undefined>('analise');
   
-  const fetchRequests = async (status?: 'analise' | 'aprovado' | 'reprovado') => {
+  const fetchRequests = useCallback(async (status?: 'analise' | 'aprovado' | 'reprovado') => {
     setLoading(true);
     try {
       const data = await getCertificateRequests(status);
@@ -40,11 +39,11 @@ export default function SolicitacoesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [message]);
 
   useEffect(() => {
     fetchRequests(filterStatus);
-  }, [filterStatus]);
+  }, [fetchRequests, filterStatus]);
 
   // --- LÓGICA CORRIGIDA ---
   const handleApprove = async (request: CertificateRequest) => {
@@ -65,7 +64,7 @@ export default function SolicitacoesPage() {
       title: 'Reprovar Solicitação',
       content: (
         <>
-          <p>Tem certeza que deseja reprovar a solicitação de "{request.student.fullName}"?</p>
+          <p>Tem certeza que deseja reprovar a solicitação de &quot;{request.student.fullName}&quot;?</p>
           <TextArea
             rows={3}
             placeholder="Digite o motivo da reprovação (opcional)"
@@ -90,7 +89,7 @@ export default function SolicitacoesPage() {
     });
   };
 
-  const columns = [
+  const columns: ColumnsType<CertificateRequest> = [
     {
       title: 'Aluno',
       dataIndex: ['student', 'fullName'],
@@ -123,7 +122,7 @@ export default function SolicitacoesPage() {
     {
       title: 'Ações',
       key: 'acoes',
-      render: (_: any, record: CertificateRequest) => (
+      render: (_: unknown, record: CertificateRequest) => (
         <Space size="middle">
           {/* Mostra as ações apenas se o status for 'Em Análise' */}
           {record.status === 'analise' && (

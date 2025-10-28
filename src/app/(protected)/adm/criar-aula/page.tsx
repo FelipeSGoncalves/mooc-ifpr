@@ -10,7 +10,6 @@ import {
   Breadcrumb,
   App, // 1. Importar 'App' do Ant Design
 } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./CriarAula.module.css";
@@ -18,6 +17,12 @@ import { parseCookies } from "nookies"; // Importando para ler o cookie
 import { apiRequest, ApiError } from "@/services/api"; // Importando para chamadas de API
 
 const { Title } = Typography;
+
+interface LessonFormValues {
+  titulo: string;
+  descricao: string;
+  urlVideo: string;
+}
 
 export default function CriarAulaPage() {
   const [form] = Form.useForm();
@@ -37,7 +42,7 @@ export default function CriarAulaPage() {
     }
   }, [courseId, router, message]); // Adicionar 'message' como dependência
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: LessonFormValues) => {
     setLoading(true);
 
     const lessonData = {

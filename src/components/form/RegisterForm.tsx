@@ -21,7 +21,10 @@ import { useRouter } from "next/navigation";
 import type { Dayjs } from "dayjs";
 
 import styles from "./RegisterForm.module.css";
-import { registerUser } from "@/services/authService";
+import { login, registerUser } from "@/services/authService";
+import { ApiError } from "@/services/api";
+import { setCookie } from "nookies";
+import { jwtDecode } from "jwt-decode";
 
 interface RegisterFormValues {
   fullName: string;
@@ -30,6 +33,92 @@ interface RegisterFormValues {
   email: string;
   password: string;
   confirmPassword: string;
+}
+
+interface DecodedToken {
+  role: "ADMIN" | "STUDENT";
+}
+
+const CPF_DIGIT_COUNT = 11;
+const PASSWORD_COMPLEXITY_REGEX = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+function sanitizeCpf(value: string): string {
+  return value.replace(/\D/g, "");
+}
+
+function isValidCpf(value: string | undefined): boolean {
+  if (!value) {
+    return false;
+  }
+
+  const digits = sanitizeCpf(value);
+
+  if (digits.length !== CPF_DIGIT_COUNT || /^(\d)\1+$/.test(digits)) {
+    return false;
+  }
+
+  const calculateDigit = (length: number) => {
+    let sum = 0;
+    for (let i = 0; i < length; i += 1) {
+      sum += Number(digits[i]) * (length + 1 - i);
+    }
+    const mod = (sum * 10) % 11;
+    return mod === 10 ? 0 : mod;
+  };
+
+  const firstVerifier = calculateDigit(9);
+  const secondVerifier = calculateDigit(10);
+
+  return (
+    firstVerifier === Number(digits[9]) && secondVerifier === Number(digits[10])
+  );
+}
+
+function extractApiErrorMessage(error: ApiError): string | null {
+  const { details, message: defaultMessage } = error;
+
+  if (details && typeof details === "object") {
+    const detailRecord = details as Record<string, unknown>;
+    const rawErrors = detailRecord.errors;
+
+    if (rawErrors && typeof rawErrors === "object") {
+      const fieldErrors = rawErrors as Record<
+        string,
+        string | string[] | undefined
+      >;
+
+      for (const value of Object.values(fieldErrors)) {
+        if (!value) {
+          continue;
+        }
+
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            return value[0];
+          }
+          continue;
+        }
+
+        if (typeof value === "string" && value.trim().length > 0) {
+          return value;
+        }
+      }
+    }
+
+    const nestedMessage = detailRecord.message;
+    if (
+      typeof nestedMessage === "string" &&
+      nestedMessage.trim().length > 0
+    ) {
+      return nestedMessage;
+    }
+  }
+
+  if (typeof defaultMessage === "string" && defaultMessage.trim().length > 0) {
+    return defaultMessage;
+  }
+
+  return null;
 }
 
 const RegisterForm: React.FC = () => {
@@ -47,19 +136,42 @@ const RegisterForm: React.FC = () => {
     try {
       const payload = {
         fullName: values.fullName,
-        cpf: values.cpf.replace(/\D/g, ""),
+        cpf: sanitizeCpf(values.cpf),
         birthDate: values.birthDate.format("YYYY-MM-DD"),
         email: values.email,
         password: values.password,
       };
 
       await registerUser(payload);
-      message.success("Cadastro realizado com sucesso! Faça login para continuar.");
-      router.push("/auth/login");
+
+      const { token } = await login({
+        email: values.email,
+        password: values.password,
+      });
+
+      setCookie(null, "jwt_token", token, {
+        maxAge: 30 * 24 * 60 * 60,
+        path: "/",
+      });
+
+      const decoded: DecodedToken = jwtDecode(token);
+      const redirectPath =
+        decoded.role === "ADMIN" ? "/adm/dashboard" : "/aluno/dashboard";
+
+      message.success("Cadastro realizado com sucesso! Redirecionando...");
+      router.push(redirectPath);
     } catch (error) {
       console.error("Falha ao cadastrar usuário:", error);
+      if (error instanceof ApiError) {
+        const parsedMessage = extractApiErrorMessage(error);
+        message.error(
+          parsedMessage ?? "Não foi possível concluir o cadastro."
+        );
+        return;
+      }
+
       const errorMessage =
-        error instanceof Error
+        error instanceof Error && error.message.trim().length > 0
           ? error.message
           : "Não foi possível concluir o cadastro.";
       message.error(errorMessage);
@@ -117,13 +229,12 @@ const RegisterForm: React.FC = () => {
                   return Promise.resolve();
                 }
 
-                const digits = String(value).replace(/\D/g, "");
-                if (digits.length === 11) {
+                if (isValidCpf(value)) {
                   return Promise.resolve();
                 }
 
                 return Promise.reject(
-                  new Error("O CPF deve conter 11 dígitos numéricos.")
+                  new Error("Informe um CPF válido.")
                 );
               },
             }),
@@ -170,7 +281,11 @@ const RegisterForm: React.FC = () => {
           name="password"
           rules={[
             { required: true, message: "Crie uma senha." },
-            { min: 6, message: "A senha deve ter pelo menos 6 caracteres." },
+            {
+              pattern: PASSWORD_COMPLEXITY_REGEX,
+              message:
+                "A senha deve ter no mínimo 8 caracteres, incluindo uma letra maiúscula e um número.",
+            },
           ]}
         >
           <Input.Password

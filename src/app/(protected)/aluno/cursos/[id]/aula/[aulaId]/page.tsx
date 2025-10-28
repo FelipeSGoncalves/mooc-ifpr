@@ -9,7 +9,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import VideoPlayer from "@/components/player/VideoPlayer"; // Verifique se o caminho está correto
 import styles from "./page.module.css";
-import { getCourseDetails, CourseDetails } from "@/services/courseService"; // Verifique se o caminho está correto
+import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService"; // Verifique se o caminho está correto
 import { markLessonProgress, getLessonDetails, LessonDetails } from "@/services/lessonService"; // Verifique se o caminho está correto
 
 const { Title, Paragraph, Text } = Typography;
@@ -207,7 +207,7 @@ export default function AulaPage() {
           <Title level={4}>Aulas do Curso</Title>
           <List
             dataSource={course.aulas}
-            renderItem={(item: any) => (
+            renderItem={(item: LessonSummary) => (
               <List.Item className={item.id === currentLesson.id ? styles.activeLesson : ''}>
                 <Link href={`/aluno/cursos/${course?.id}/aula/${item.id}`} className={styles.lessonLink}>
                   <Text>{item.ordemAula}. {item.titulo}</Text>

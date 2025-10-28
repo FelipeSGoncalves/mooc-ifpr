@@ -10,7 +10,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "./page.module.css";
 
-import { getCourseDetails, CourseDetails } from "@/services/courseService";
+import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService";
 import { enrollInCourse } from "@/services/enrollmentService";
 import { generateCertificate } from "@/services/certificateService";
 import fallbackImage from "@/assets/mooc.jpeg";
@@ -123,7 +123,7 @@ export default function AlunoCursoPage() {
     }
 
     // Se está inscrito, mas não concluiu
-    const firstUnwatchedLesson = course.aulas.find(aula => !(aula as any).concluido);
+    const firstUnwatchedLesson = course.aulas.find(aula => !aula.concluido);
     const continueLink = firstUnwatchedLesson
       ? `/aluno/cursos/${id}/aula/${firstUnwatchedLesson.id}`
       : (course.aulas.length > 0 ? `/aluno/cursos/${id}/aula/${course.aulas[0].id}` : '#');
@@ -194,8 +194,9 @@ export default function AlunoCursoPage() {
           <List
             bordered
             dataSource={course.aulas}
-            renderItem={(aula: any) => (
+            renderItem={(aula: LessonSummary) => (
               <List.Item
+                key={aula.id}
                 extra={course.inscricaoInfo?.estaInscrito && aula.concluido ? <CheckCircleOutlined style={{ color: '#52c41a' }} /> : null}
               >
                 <List.Item.Meta

@@ -14,7 +14,18 @@ import { EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs"; // Biblioteca para formatar datas
 import styles from "./PerfilPage.module.css";
 
-import { getCurrentUserDetails, UserDetails } from "@/services/userService";
+import { getCurrentUserDetails } from "@/services/userService";
+
+// Defina a interface UserDetails localmente, já que não está exportada do serviço
+interface UserDetails {
+  id: number;
+  fullName: string;
+  cpf: string;
+  birthDate: string;
+  email: string;
+  active: boolean;
+  createdAt: string;
+}
 
 const { Title } = Typography;
 

@@ -17,6 +17,13 @@ export interface LessonDetails {
   };
 }
 
+// Interface para o payload de atualização
+export interface LessonUpdatePayload {
+    titulo: string;
+    descricao: string;
+    urlVideo: string;
+}
+
 /**
  * Busca os detalhes de uma aula específica dentro de um curso.
  * Requer autenticação.
@@ -33,10 +40,24 @@ export async function getLessonDetails(courseId: string | number, lessonId: stri
 }
 
 /**
+ * Atualiza os dados de uma aula existente.
+ */
+export async function updateLesson(courseId: string | number, lessonId: string | number, payload: LessonUpdatePayload): Promise<LessonDetails> {
+    const token = parseCookies().jwt_token;
+    if (!token) {
+        throw new ApiError("Usuário não autenticado", 401);
+    }
+
+    return apiRequest<LessonDetails>(`/courses/${courseId}/lessons/${lessonId}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+    });
+}
+
+
+/**
  * Marca o progresso de uma aula para um aluno.
- * @param enrollmentId O ID da matrícula do aluno no curso.
- * @param lessonId O ID da aula a ser marcada.
- * @param concluido O status de conclusão.
  */
 export async function markLessonProgress(enrollmentId: number, lessonId: number, concluido: boolean) {
     const token = parseCookies().jwt_token;

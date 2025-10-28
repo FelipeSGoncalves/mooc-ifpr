@@ -1,28 +1,48 @@
+.container {
+  padding: 16px;
+}
+
 .pageTitle {
-  font-size: 2rem;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 24px;
 }
 
-.cardsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
   gap: 16px;
+  border: 1px solid #f0f0f0;
+  height: 100%;
 }
 
-.card {
-  border: 1px solid #ddd;
-  padding: 16px;
-  border-radius: 8px;
-  background-color: #fff;
+.cardIcon {
+  font-size: 28px;
+  color: var(--cor-primaria);
+  background-color: #e6f7ff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
 }
 
 .cardTitle {
-  font-size: 1.25rem;
-  margin-bottom: 8px;
+  color: #8c8c8c;
+  margin-bottom: 4px;
 }
 
 .cardValue {
-  font-size: 2rem;
+  font-size: 24px;
   font-weight: 700;
+  color: #262626;
+  line-height: 1.2;
 }

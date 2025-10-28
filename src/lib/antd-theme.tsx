@@ -12,25 +12,20 @@ export const themeIFPR: ThemeConfig = {
   },
   components: {
     Button: {
-      //Botão Default
+      // Estilos de botão (sem alteração)
       defaultColor: "#001205",
       defaultBorderColor: "#001205",
       defaultHoverColor: "#038A71",
       defaultHoverBorderColor: "#038A71",
-
-      //Botão Primário
       colorPrimary: "#038A71",
       colorText: "#001205",
       colorPrimaryHover: "#1A4032",
-
-      //BOTÃO PERIGO
-
-      //BOTÃO DESATIVADO
     },
     Layout: {
       bodyBg: "#F2F2F2",
-      headerBg: "#001205",
-      footerBg: "#001205",
+      // --- CORREÇÃO APLICADA AQUI ---
+      headerBg: "#212529", // Cinza-escuro
+      footerBg: "#212529", // Cinza-escuro
     },
   },
 };

@@ -3,116 +3,130 @@
   top: 0;
   z-index: 100;
   width: 100%;
-  background: var(--cor-primaria-escura, #001529);
+  /* A cor de fundo agora vem do antd-theme.tsx */
+  border-bottom: 1px solid #343a40; /* Borda sutil um pouco mais clara */
+  height: 80px;
+  padding: 0;
+  display: flex;
+  align-items: center;
 }
 
 .container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 16px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
-  padding: 0 16px;
-  min-height: 64px;
+  padding: 0 24px;
 }
 
 .logoWrapper {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   text-decoration: none;
 }
 
-.logoText {
-  color: var(--cor-texto-claro);
-  font-weight: bolder;
+.desktopNav {
+  display: flex;
+  gap: 16px;
+  margin: 0 auto;
 }
 
-.logoHighlight {
-  color: var(--cor-texto-destaque);
+.navLink {
+  color: rgba(255, 255, 255, 0.7); /* LETRA BRANCA com transparência */
+  font-weight: 500;
+  padding: 8px 4px;
+  transition: color 0.3s ease;
+  position: relative;
+  text-decoration: none;
+  font-size: 16px;
 }
 
-.menu {
-  color: white !important;
-  flex: 1;
-  justify-content: flex-end;
-  background-color: transparent !important;
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--cor-destaque);
+  transition: width 0.3s ease;
+}
+
+.navLink:hover {
+  color: #fff; /* LETRA BRANCA */
+}
+
+.navLink.active {
+  color: #fff; /* LETRA BRANCA */
+}
+
+.navLink.active::after,
+.navLink:hover::after {
+  width: 100%;
 }
 
 .buttonGroup {
   display: flex;
   gap: 8px;
+  align-items: center;
+}
+
+/* O botão 'ghost' do Ant Design se adapta bem ao fundo escuro */
+.loginButton {
+  font-weight: 600 !important;
+}
+
+.registerButton {
+  font-weight: 600 !important;
 }
 
 .mobileToggle {
   display: none;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
   border: none;
-  border-radius: 8px;
   background: transparent;
-  color: var(--cor-texto-claro);
+  font-size: 24px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  color: #fff; /* LETRA BRANCA */
 }
 
-.mobileToggle:hover,
-.mobileToggle:focus-visible {
-  background: rgba(255, 255, 255, 0.12);
-  outline: none;
+/* Ajustes no menu mobile para fundo escuro */
+.drawer :global(.ant-drawer-header) {
+    background-color: #212529;
 }
-
-.drawer :global(.ant-drawer-content) {
-  background: var(--cor-primaria-escura, #001529);
-  color: var(--cor-texto-claro);
-}
-
 .drawer :global(.ant-drawer-body) {
-  padding: 24px;
+  background-color: #212529;
 }
-
-.drawerMenu :global(.ant-menu-item a) {
-  color: inherit;
+.drawer :global(.ant-drawer-header-title) .ant-drawer-close {
+  color: #fff;
 }
-
-.drawerButtons {
+.drawerNav {
   display: flex;
   flex-direction: column;
-  gap: 12px;
 }
-
-.fullWidthLink {
-  width: 100%;
+.drawerLink {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
+  padding: 16px 0;
+  text-decoration: none;
+  border-bottom: 1px solid #343a40;
 }
-
-@media (max-width: 992px) {
-  .container {
-    padding: 0 12px;
-  }
+.drawerButtons {
+  margin-top: auto;
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 @media (max-width: 768px) {
-  .container {
-    min-height: 56px;
-  }
-
-  .menu {
+  .desktopNav, .buttonGroup {
     display: none;
   }
-
-  .buttonGroup {
-    display: none;
-  }
-
   .mobileToggle {
-    display: inline-flex;
-  }
-
-  .logoText {
-    font-size: 0.9rem;
+    display: block;
+    margin-left: auto;
   }
 }

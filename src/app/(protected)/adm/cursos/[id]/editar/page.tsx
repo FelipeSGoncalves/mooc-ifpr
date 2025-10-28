@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import {
   Button, Form, Input, InputNumber, Select, Typography, Upload, App, Row, Col, Space, Spin, Breadcrumb
 } from "antd";
-import { UploadOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import { UploadOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
@@ -16,7 +16,7 @@ import { ApiError } from "@/services/api";
 
 const { Title } = Typography;
 const { Dragger } = Upload;
-const { Option } = Select; // Importar Option
+const { Option } = Select;
 
 export default function EditarCursoPage() {
   const [form] = Form.useForm();
@@ -34,7 +34,6 @@ export default function EditarCursoPage() {
 
   useEffect(() => {
     if (!id) return;
-
     const fetchCourseData = async () => {
       try {
         const course = await getCourseDetails(id);
@@ -44,7 +43,7 @@ export default function EditarCursoPage() {
           cargaHoraria: course.cargaHoraria,
           nomeProfessor: course.nomeProfessor,
           areaConhecimento: course.areaConhecimento.id,
-          visivel: course.visivel, // Preenche o campo de visibilidade
+          visivel: course.visivel,
         });
         setCurrentThumbnailUrl(course.miniatura);
       } catch (error) {
@@ -54,7 +53,6 @@ export default function EditarCursoPage() {
         setPageLoading(false);
       }
     };
-
     fetchCourseData();
   }, [id, form, message, router]);
 
@@ -74,15 +72,17 @@ export default function EditarCursoPage() {
       nomeProfessor: values.nomeProfessor,
       areaConhecimentoId: values.areaConhecimento,
       campusId: 1,
-      visivel: values.visivel, // Agora 'visivel' sempre terá um valor
+      visivel: values.visivel,
     };
 
     try {
       await updateCourse(id, courseData);
 
-      if (fileList.length > 0 && fileList[0].originFileObj) {
+      // --- CORREÇÃO APLICADA AQUI ---
+      if (fileList.length > 0) {
         message.loading({ content: 'Dados atualizados, enviando nova imagem...', key: 'upload' });
-        const imageFile = fileList[0].originFileObj as RcFile;
+        const imageFile = fileList[0] as RcFile; // Acessamos o arquivo diretamente
+        console.log(imageFile)
         await uploadCourseThumbnail(Number(id), imageFile);
       }
 
@@ -110,75 +110,24 @@ export default function EditarCursoPage() {
           { title: 'Editar' },
         ]}
       />
-
-      <Title level={2} className={styles.title}>
-        Editar Curso
-      </Title>
-
+      <Title level={2} className={styles.title}>Editar Curso</Title>
       <Form form={form} layout="vertical" onFinish={onFinish}>
-        {/* ...campos de título, carga horária, etc... */}
-        <Row gutter={24}>
-          <Col xs={24} md={18}>
-            <Form.Item name="titulo" label="Título do Curso" rules={[{ required: true }]}>
-              <Input size="large" />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={6}>
-            <Form.Item name="cargaHoraria" label="Carga Horária (horas)" rules={[{ required: true }]}>
-              <InputNumber style={{ width: "100%" }} size="large" />
-            </Form.Item>
-          </Col>
-        </Row>
-        <Form.Item name="descricao" label="Descrição" rules={[{ required: true }]}>
-          <Input.TextArea rows={4} />
-        </Form.Item>
-        <Row gutter={24}>
-          <Col xs={24} md={12}>
-            <Form.Item name="nomeProfessor" label="Nome do Professor" rules={[{ required: true }]}>
-              <Input size="large" />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item name="areaConhecimento" label="Área do Curso" rules={[{ required: true }]}>
-              <Select options={knowledgeAreas.map(area => ({ value: area.id, label: area.name }))} size="large" />
-            </Form.Item>
-          </Col>
-        </Row>
-        
-        {/* CAMPO DE VISIBILIDADE ADICIONADO AQUI */}
-        <Form.Item name="visivel" label="Visibilidade do Curso" rules={[{ required: true, message: 'Selecione a visibilidade' }]}>
-            <Select placeholder="Selecione" size="large">
-                <Option value={true}>Público (Visível para alunos)</Option>
-                <Option value={false}>Privado (Não visível para alunos)</Option>
-            </Select>
-        </Form.Item>
-        
+        {/* ... (O resto do formulário permanece igual) ... */}
+        <Row gutter={24}><Col xs={24} md={18}><Form.Item name="titulo" label="Título do Curso" rules={[{ required: true }]}><Input size="large" /></Form.Item></Col><Col xs={24} md={6}><Form.Item name="cargaHoraria" label="Carga Horária (horas)" rules={[{ required: true }]}><InputNumber style={{ width: "100%" }} size="large" /></Form.Item></Col></Row>
+        <Form.Item name="descricao" label="Descrição" rules={[{ required: true }]}><Input.TextArea rows={4} /></Form.Item>
+        <Row gutter={24}><Col xs={24} md={12}><Form.Item name="nomeProfessor" label="Nome do Professor" rules={[{ required: true }]}><Input size="large" /></Form.Item></Col><Col xs={24} md={12}><Form.Item name="areaConhecimento" label="Área do Curso" rules={[{ required: true }]}><Select options={knowledgeAreas.map(area => ({ value: area.id, label: area.name }))} size="large" /></Form.Item></Col></Row>
+        <Form.Item name="visivel" label="Visibilidade do Curso" rules={[{ required: true, message: 'Selecione a visibilidade' }]}><Select placeholder="Selecione" size="large"><Option value={true}>Público (Visível para alunos)</Option><Option value={false}>Privado (Não visível para alunos)</Option></Select></Form.Item>
         <Form.Item label="Thumbnail do Curso (Opcional)">
-          {currentThumbnailUrl && fileList.length === 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <p>Imagem atual:</p>
-              <Image src={currentThumbnailUrl} alt="Thumbnail atual" width={150} height={90} style={{ objectFit: 'cover', borderRadius: 8 }} />
-            </div>
-          )}
-          <Dragger 
-            fileList={fileList}
-            beforeUpload={(file) => { setFileList([file]); return false; }}
-            onRemove={() => setFileList([])}
-            maxCount={1}
-          >
+          {currentThumbnailUrl && fileList.length === 0 && ( <div style={{ marginBottom: 16 }}><p>Imagem atual:</p><Image src={currentThumbnailUrl} alt="Thumbnail atual" width={150} height={90} style={{ objectFit: 'cover', borderRadius: 8 }} /></div>)}
+          <Dragger fileList={fileList} beforeUpload={(file) => { setFileList([file]); return false; }} onRemove={() => setFileList([])} maxCount={1}>
             <p className="ant-upload-drag-icon"><UploadOutlined /></p>
             <p className="ant-upload-text">Clique ou arraste uma nova imagem para substituir</p>
           </Dragger>
         </Form.Item>
-
         <Form.Item>
           <Space>
-            <Button type="primary" htmlType="submit" size="large" loading={loading}>
-              Salvar Alterações
-            </Button>
-            <Button size="large" onClick={() => router.back()}>
-              Cancelar
-            </Button>
+            <Button type="primary" htmlType="submit" size="large" loading={loading}>Salvar Alterações</Button>
+            <Button size="large" onClick={() => router.back()}>Cancelar</Button>
           </Space>
         </Form.Item>
       </Form>

@@ -70,20 +70,14 @@ export async function uploadCourseThumbnail(courseId: number, thumbnail: File) {
   const formData = new FormData();
   formData.append("thumbnail", thumbnail);
 
-  const response = await fetch(`${API_BASE_URL}/courses/${courseId}/thumbnail`, {
+  // Agora usando o apiRequest, que vai lidar com o header e o token corretamente.
+  return apiRequest(`/courses/${courseId}/thumbnail`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
     },
     body: formData,
   });
-
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new ApiError(errorData.message || "Falha no upload da imagem", response.status, errorData);
-  }
-
-  return response.json();
 }
 
 export interface CourseDetails {

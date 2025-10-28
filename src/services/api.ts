@@ -15,13 +15,10 @@ export class ApiError extends Error {
 
 async function parseResponseBody(response: Response) {
   const contentType = response.headers.get("content-type");
-
   if (contentType?.includes("application/json")) {
     return response.json();
   }
-
   const text = await response.text();
-
   try {
     return JSON.parse(text);
   } catch {
@@ -33,14 +30,31 @@ export async function apiRequest<TResponse>(
   path: string,
   init: RequestInit = {}
 ): Promise<TResponse> {
+  // Convert Headers to plain object with proper typing
+  const headers: Record<string, string> = {
+    ...Object.fromEntries(
+      init.headers instanceof Headers
+        ? init.headers.entries()
+        : init.headers && typeof init.headers === 'object'
+        ? Object.entries(init.headers)
+        : []
+    )
+  };
+
+  // Only set Content-Type if body is not FormData
+  if (!(init.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
   const response = await fetch(`${API_BASE_URL}${path}`, {
     cache: "no-store",
     ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init.headers ?? {}),
-    },
+    headers,
   });
+  // Se for FormData, o navegador vai definir o Content-Type automaticamente com o boundary correto.
+
+
+  // --- FIM DA CORREÇÃO ---
 
   const data = await parseResponseBody(response);
 

@@ -11,7 +11,6 @@ import styles from "./CriarCurso.module.css";
 import type { RcFile, UploadFile } from "antd/es/upload/interface";
 import { parseCookies } from "nookies";
 
-// Importando os serviços atualizados
 import { getKnowledgeAreas, KnowledgeArea, uploadCourseThumbnail } from "@/services/courseService";
 import { apiRequest, ApiError } from "@/services/api";
 
@@ -47,7 +46,7 @@ export default function CriarCursoPage() {
       cargaHoraria: values.cargaHoraria,
       nomeProfessor: values.nomeProfessor,
       areaConhecimentoId: values.areaConhecimento,
-      campusId: 1,
+      campusId: 1, // Campus Fixo
     };
     
     const token = parseCookies().jwt_token;
@@ -58,22 +57,21 @@ export default function CriarCursoPage() {
     }
 
     try {
-      // --- ETAPA 1: Criar o curso com os dados de texto ---
       const newCourse = await apiRequest<{ id: number }>("/courses", {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
         body: JSON.stringify(courseData),
       });
 
-      // --- ETAPA 2: Se houver uma imagem, fazer o upload dela ---
-      if (fileList.length > 0 && fileList[0].originFileObj) {
+      // --- CORREÇÃO APLICADA AQUI ---
+      // O arquivo está em fileList[0], não em fileList[0].originFileObj
+      if (fileList.length > 0) {
         message.loading({ content: 'Curso criado, enviando imagem...', key: 'upload' });
-        const imageFile = fileList[0].originFileObj as RcFile;
+        const imageFile = fileList[0] as RcFile; // Acessamos o arquivo diretamente
         await uploadCourseThumbnail(newCourse.id, imageFile);
       }
 
       message.success({ content: 'Curso salvo com sucesso!', key: 'upload' });
-      // Redireciona para a página de detalhes do curso recém-criado
       router.push(`/adm/cursos/${newCourse.id}`);
 
     } catch (error) {
@@ -96,43 +94,20 @@ export default function CriarCursoPage() {
       </div>
 
       <Form form={form} layout="vertical" onFinish={onFinish}>
+        {/* ... (O resto do formulário permanece igual) ... */}
         <Row gutter={24}>
-          <Col xs={24} md={18}>
-            <Form.Item name="titulo" label="Título do Curso" rules={[{ required: true, message: "Insira o título!" }]}>
-              <Input placeholder="Ex: Introdução ao React" size="large" />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={6}>
-            <Form.Item name="cargaHoraria" label="Carga Horária (horas)" rules={[{ required: true, message: "Insira a carga horária!" }]}>
-              <InputNumber style={{ width: "100%" }} placeholder="Ex: 40" size="large" />
-            </Form.Item>
-          </Col>
+          <Col xs={24} md={18}><Form.Item name="titulo" label="Título do Curso" rules={[{ required: true, message: "Insira o título!" }]}><Input placeholder="Ex: Introdução ao React" size="large" /></Form.Item></Col>
+          <Col xs={24} md={6}><Form.Item name="cargaHoraria" label="Carga Horária (horas)" rules={[{ required: true, message: "Insira a carga horária!" }]}><InputNumber style={{ width: "100%" }} placeholder="Ex: 40" size="large" /></Form.Item></Col>
         </Row>
-        
-        <Form.Item name="descricao" label="Descrição" rules={[{ required: true, message: "Insira a descrição!" }]}>
-          <Input.TextArea rows={4} placeholder="Descreva os objetivos e o conteúdo do curso."/>
-        </Form.Item>
-
+        <Form.Item name="descricao" label="Descrição" rules={[{ required: true, message: "Insira a descrição!" }]}><Input.TextArea rows={4} placeholder="Descreva os objetivos e o conteúdo do curso."/></Form.Item>
         <Row gutter={24}>
-          <Col xs={24} md={12}>
-            <Form.Item name="nomeProfessor" label="Nome do Professor" rules={[{ required: true, message: "Insira o nome do professor!" }]}>
-              <Input placeholder="Ex: Prof. Dr. João da Silva" size="large" />
-            </Form.Item>
-          </Col>
-          <Col xs={24} md={12}>
-            <Form.Item name="areaConhecimento" label="Área do Curso" rules={[{ required: true, message: "Selecione a área!" }]}>
-              <Select placeholder="Selecione uma área" options={knowledgeAreas.map(area => ({ value: area.id, label: area.name }))} size="large" />
-            </Form.Item>
-          </Col>
+          <Col xs={24} md={12}><Form.Item name="nomeProfessor" label="Nome do Professor" rules={[{ required: true, message: "Insira o nome do professor!" }]}><Input placeholder="Ex: Prof. Dr. João da Silva" size="large" /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="areaConhecimento" label="Área do Curso" rules={[{ required: true, message: "Selecione a área!" }]}><Select placeholder="Selecione uma área" options={knowledgeAreas.map(area => ({ value: area.id, label: area.name }))} size="large" /></Form.Item></Col>
         </Row>
-        
         <Form.Item name="thumbnail" label="Thumbnail do Curso (Opcional)">
             <Dragger 
               fileList={fileList}
-              beforeUpload={(file) => {
-                setFileList([file]); // Apenas armazena o arquivo no estado
-                return false; // Impede o upload automático do Ant Design
-              }}
+              beforeUpload={(file) => { setFileList([file]); return false; }}
               onRemove={() => setFileList([])}
               maxCount={1}
             >
@@ -141,15 +116,10 @@ export default function CriarCursoPage() {
               <p className="ant-upload-hint">A imagem será enviada após a criação do curso.</p>
             </Dragger>
         </Form.Item>
-
         <Form.Item>
           <Space>
-            <Button type="primary" htmlType="submit" size="large" loading={loading}>
-              Salvar Curso
-            </Button>
-            <Button size="large" onClick={() => router.back()}>
-              Cancelar
-            </Button>
+            <Button type="primary" htmlType="submit" size="large" loading={loading}>Salvar Curso</Button>
+            <Button size="large" onClick={() => router.back()}>Cancelar</Button>
           </Space>
         </Form.Item>
       </Form>

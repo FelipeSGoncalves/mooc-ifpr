@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { Button, Form, Input, Typography, Space, Breadcrumb, App, Spin } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import styles from "../../../../../criar-aula/CriarAula.module.css"; // Reutilizando o CSS da página de criar aula
@@ -11,6 +10,12 @@ import { getLessonDetails, updateLesson } from "@/services/lessonService";
 import { ApiError } from "@/services/api";
 
 const { Title } = Typography;
+
+interface LessonFormValues {
+  titulo: string;
+  descricao: string;
+  urlVideo: string;
+}
 
 export default function EditarAulaPage() {
   const [form] = Form.useForm();
@@ -51,7 +56,7 @@ export default function EditarAulaPage() {
     fetchLessonData();
   }, [courseId, lessonId, router, message, form]);
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: LessonFormValues) => {
     setLoading(true);
     try {
       await updateLesson(courseId, lessonId, values);

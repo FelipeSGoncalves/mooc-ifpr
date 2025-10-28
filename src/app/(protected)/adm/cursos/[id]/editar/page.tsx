@@ -18,6 +18,15 @@ const { Title } = Typography;
 const { Dragger } = Upload;
 const { Option } = Select;
 
+interface CourseFormValues {
+  titulo: string;
+  descricao: string;
+  cargaHoraria: number;
+  nomeProfessor: string;
+  areaConhecimento: number;
+  visivel: boolean;
+}
+
 export default function EditarCursoPage() {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -62,7 +71,7 @@ export default function EditarCursoPage() {
       .catch(() => message.error("Não foi possível carregar as áreas de conhecimento."));
   }, [message]);
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: CourseFormValues) => {
     setLoading(true);
 
     const courseData = {
@@ -82,7 +91,6 @@ export default function EditarCursoPage() {
       if (fileList.length > 0) {
         message.loading({ content: 'Dados atualizados, enviando nova imagem...', key: 'upload' });
         const imageFile = fileList[0] as RcFile; // Acessamos o arquivo diretamente
-        console.log(imageFile)
         await uploadCourseThumbnail(Number(id), imageFile);
       }
 

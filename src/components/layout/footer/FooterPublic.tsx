@@ -15,7 +15,7 @@ export default function FooterPublic() {
         <Row gutter={[48, 40]} justify="space-between">
           <Col xs={24} lg={8}>
             <div className={styles.brandInfo}>
-              <Image src={logoIcon} alt="MOOC IFPR" width={130} height={130} />
+              <Image src={logoIcon} alt="MOOC IFPR" width={150} height={150} />
             </div>
             <Paragraph className={styles.description}>
               Plataforma de Cursos Abertos, Online e Massivos do Instituto Federal do Paraná, Campus Foz do Iguaçu.

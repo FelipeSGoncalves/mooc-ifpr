@@ -10,6 +10,12 @@ interface User {
   role: 'ADMIN' | 'STUDENT';
 }
 
+interface DecodedToken {
+  userId: number;
+  fullName: string;
+  role: User['role'];
+}
+
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -28,9 +34,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const token = cookies.jwt_token;
 
       if (token) {
-        const decodedToken: any = jwtDecode(token);
-        setUser({ 
-            userId: decodedToken.userId, 
+        const decodedToken = jwtDecode<DecodedToken>(token);
+        setUser({
+            userId: decodedToken.userId,
             fullName: decodedToken.fullName,
             role: decodedToken.role 
         });

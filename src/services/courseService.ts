@@ -1,5 +1,4 @@
-// 1. IMPORTAÇÕES CORRIGIDAS: Adicionamos API_BASE_URL e ApiError
-import { apiRequest, ApiError, API_BASE_URL } from "./api";
+import { apiRequest, ApiError } from "./api";
 import { parseCookies } from "nookies";
 
 
@@ -22,7 +21,7 @@ export interface Course {
 }
 
 // Interface para a resposta paginada da API
-interface PaginatedResponse<T> {
+export interface PaginatedResponse<T> {
   conteudo: T[];
   totalPaginas: number;
   totalElementos: number;
@@ -80,6 +79,16 @@ export async function uploadCourseThumbnail(courseId: number, thumbnail: File) {
   });
 }
 
+export interface LessonSummary {
+  id: number;
+  titulo: string;
+  descricao: string;
+  urlVideo: string;
+  ordemAula: number;
+  miniatura?: string | null;
+  concluido?: boolean;
+}
+
 export interface CourseDetails {
   id: number;
   nome: string;
@@ -89,8 +98,8 @@ export interface CourseDetails {
   cargaHoraria: number;
   visivel: boolean;
   areaConhecimento: { id: number; nome: string };
-  aulas: any[]; 
-  
+  aulas: LessonSummary[];
+
   inscricaoInfo?: {
     inscricaoId: number;
     estaInscrito: boolean;
@@ -103,6 +112,16 @@ export interface CourseDetails {
     certificateStatus?: 'analise' | 'aprovado' | 'reprovado';
     certificateStatusDescription?: string;
   };
+}
+
+export interface CourseUpdatePayload {
+  nome: string;
+  descricao: string;
+  cargaHoraria: number;
+  nomeProfessor: string;
+  areaConhecimentoId: number;
+  campusId: number;
+  visivel?: boolean;
 }
 
 
@@ -122,7 +141,7 @@ export async function getCourseDetails(id: string | number): Promise<CourseDetai
 /**
  * Atualiza os dados de um curso existente.
  */
-export async function updateCourse(id: string | number, courseData: any) {
+export async function updateCourse(id: string | number, courseData: CourseUpdatePayload) {
     const token = parseCookies().jwt_token;
     if (!token) {
         throw new ApiError("Usuário não autenticado", 401);

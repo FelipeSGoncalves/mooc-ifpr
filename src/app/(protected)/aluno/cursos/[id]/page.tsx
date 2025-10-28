@@ -114,9 +114,9 @@ export default function AlunoCursoPage() {
 
       // Por padrão (status 'analise' ou indefinido)
       return (
-        <Tooltip title="Sua solicitação de certificado está sendo analisada pela administração.">
+        <Tooltip title="Caso seu certificado tenha sido aprovado ele estará disponível na aba de certificados">
           <Button type="primary" size="large" icon={<HourglassOutlined />} disabled>
-            Certificado em Análise
+            Concluido
           </Button>
         </Tooltip>
       );

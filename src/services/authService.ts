@@ -61,7 +61,7 @@ export async function login(payload: LoginPayload) {
 }
 
 export async function registerUser(payload: RegisterPayload) {
-  return apiRequest<unknown>("/auth/cadastro", {
+  return apiRequest<unknown>("/users/register", {
     method: "POST",
     body: JSON.stringify(payload),
   });

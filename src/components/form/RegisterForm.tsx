@@ -21,7 +21,9 @@ import { useRouter } from "next/navigation";
 import type { Dayjs } from "dayjs";
 
 import styles from "./RegisterForm.module.css";
-import { registerUser } from "@/services/authService";
+import { login, registerUser } from "@/services/authService";
+import { setCookie } from "nookies";
+import { jwtDecode } from "jwt-decode";
 
 interface RegisterFormValues {
   fullName: string;
@@ -30,6 +32,10 @@ interface RegisterFormValues {
   email: string;
   password: string;
   confirmPassword: string;
+}
+
+interface DecodedToken {
+  role: "ADMIN" | "STUDENT";
 }
 
 const RegisterForm: React.FC = () => {
@@ -54,8 +60,23 @@ const RegisterForm: React.FC = () => {
       };
 
       await registerUser(payload);
-      message.success("Cadastro realizado com sucesso! Faça login para continuar.");
-      router.push("/auth/login");
+
+      const { token } = await login({
+        email: values.email,
+        password: values.password,
+      });
+
+      setCookie(null, "jwt_token", token, {
+        maxAge: 30 * 24 * 60 * 60,
+        path: "/",
+      });
+
+      const decoded: DecodedToken = jwtDecode(token);
+      const redirectPath =
+        decoded.role === "ADMIN" ? "/adm/dashboard" : "/aluno/dashboard";
+
+      message.success("Cadastro realizado com sucesso! Redirecionando...");
+      router.push(redirectPath);
     } catch (error) {
       console.error("Falha ao cadastrar usuário:", error);
       const errorMessage =

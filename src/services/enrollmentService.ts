@@ -1,6 +1,6 @@
-import { apiRequest, ApiError } from "./api";
 import { parseCookies } from "nookies";
-import { Course } from "./courseService"; // Reutilizando a interface
+import { apiRequest, ApiError } from "./api";
+import type { PaginatedResponse } from "./courseService";
 
 // Adicionando a nova função getMyCourses
 /**
@@ -9,6 +9,18 @@ import { Course } from "./courseService"; // Reutilizando a interface
  * @param completed - Filtra por status de conclusão (true para concluídos, false para em andamento).
  * @param direction - Ordena por data de inscrição.
  */
+export interface StudentCourseSummary {
+  enrollmentId: number;
+  cursoId: number;
+  nome: string;
+  nomeProfessor: string;
+  miniatura: string | null;
+  cargaHoraria: number;
+  concluido: boolean;
+  campus: { id: number; nome: string };
+  areaConhecimento: { id: number; nome: string };
+}
+
 export async function getMyCourses(
   searchTerm?: string,
   completed?: boolean | null,
@@ -28,7 +40,7 @@ export async function getMyCourses(
   params.append("size", "100");
 
   // A interface da resposta paginada é a mesma do courseService
-  return apiRequest<any>(`/enrollments/my-courses?${params.toString()}`, {
+  return apiRequest<PaginatedResponse<StudentCourseSummary>>(`/enrollments/my-courses?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 }
@@ -44,7 +56,7 @@ export async function enrollInCourse(courseId: number | string) {
     throw new ApiError("User not authenticated", 401);
   }
 
-  return apiRequest<any>("/enrollments", {
+  return apiRequest<void>("/enrollments", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}` },
     body: JSON.stringify({ cursoId: courseId }),
@@ -63,7 +75,7 @@ export async function cancelEnrollment(enrollmentId: number | string) {
 
   // Note: Backend endpoint for DELETE might not exist yet.
   // This is prepared for when `DELETE /enrollments/{id}` is implemented.
-  return apiRequest<any>(`/enrollments/${enrollmentId}`, {
+  return apiRequest<void>(`/enrollments/${enrollmentId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });

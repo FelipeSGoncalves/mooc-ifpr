@@ -17,7 +17,7 @@ export default function FooterPublic() {
             <div className={styles.brandInfo}>
               <Image src={logoIcon} alt="MOOC IFPR" width={150} height={150} />
             </div>
-            <Paragraph className={styles.description}>
+            <Paragraph className={styles.description} style={{color: '#b8b8b8ff', fontSize: '17px'}}>
               Plataforma de Cursos Abertos, Online e Massivos do Instituto Federal do Paraná, Campus Foz do Iguaçu.
             </Paragraph>
           </Col>
@@ -31,7 +31,7 @@ export default function FooterPublic() {
           </Col>
           <Col xs={12} sm={8} lg={6}>
             <Title level={5} className={styles.footerTitle}>Contato</Title>
-            <Paragraph className={styles.description} style={{marginBottom: 16}}>
+            <Paragraph className={styles.description} style={{marginBottom: 16, color: '#b8b8b8ff'}}>
               Av. Araucária, 780 - Vila A<br/>
               Foz do Iguaçu - PR, 85860-000
             </Paragraph>

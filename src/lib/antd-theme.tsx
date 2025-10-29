@@ -25,7 +25,7 @@ export const themeIFPR: ThemeConfig = {
       bodyBg: "#F2F2F2",
       // --- CORREÇÃO APLICADA AQUI ---
       headerBg: "#212529", // Cinza-escuro
-      footerBg: "transparent", // Cinza-escuro
+      footerBg: "#212529", // Cinza-escuro
     },
   },
 };

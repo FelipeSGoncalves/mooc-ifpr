@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // Adicione esta configuração de imagens:
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "http",

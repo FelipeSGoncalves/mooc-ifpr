@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   Button,
   Form,
@@ -8,13 +8,14 @@ import {
   Typography,
   Space,
   Breadcrumb,
-  App, // 1. Importar 'App' do Ant Design
+  App,
+  Spin,
 } from "antd";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./CriarAula.module.css";
-import { parseCookies } from "nookies"; // Importando para ler o cookie
-import { apiRequest, ApiError } from "@/services/api"; // Importando para chamadas de API
+import { parseCookies } from "nookies";
+import { apiRequest, ApiError } from "@/services/api";
 
 const { Title } = Typography;
 
@@ -24,12 +25,11 @@ interface LessonFormValues {
   urlVideo: string;
 }
 
-export default function CriarAulaPage() {
+// Component that uses the hook
+function CreateLessonForm() {
   const [form] = Form.useForm();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  // 2. Obter a instância do 'message' a partir do hook
   const { message } = App.useApp();
 
   const [loading, setLoading] = useState(false);
@@ -40,7 +40,7 @@ export default function CriarAulaPage() {
       message.error("ID do curso não encontrado. Selecione um curso primeiro.");
       router.push("/adm/cursos");
     }
-  }, [courseId, router, message]); // Adicionar 'message' como dependência
+  }, [courseId, router, message]);
 
   const onFinish = async (values: LessonFormValues) => {
     setLoading(true);
@@ -77,16 +77,20 @@ export default function CriarAulaPage() {
     }
   };
 
+  if (!courseId) {
+    return <Spin />;
+  }
+
   return (
-    <div className={styles.container}>
-       <Breadcrumb
-          className={styles.breadcrumb}
-          items={[
-            { title: <Link href="/adm/cursos">Catálogo de Cursos</Link> },
-            { title: <Link href={`/adm/cursos/${courseId}`}>Detalhes do Curso</Link> },
-            { title: 'Criar Aula' },
-          ]}
-        />
+    <>
+      <Breadcrumb
+        className={styles.breadcrumb}
+        items={[
+          { title: <Link href="/adm/cursos">Catálogo de Cursos</Link> },
+          { title: <Link href={`/adm/cursos/${courseId}`}>Detalhes do Curso</Link> },
+          { title: 'Criar Aula' },
+        ]}
+      />
       
       <Title level={2} className={styles.title}>
         Adicionar Nova Aula
@@ -120,6 +124,17 @@ export default function CriarAulaPage() {
           </Space>
         </Form.Item>
       </Form>
+    </>
+  );
+}
+
+// Main page component
+export default function CriarAulaPage() {
+  return (
+    <div className={styles.container}>
+      <Suspense fallback={<Spin size="large" />}>
+        <CreateLessonForm />
+      </Suspense>
     </div>
   );
 }

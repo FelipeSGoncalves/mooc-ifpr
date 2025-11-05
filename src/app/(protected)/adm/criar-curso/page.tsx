@@ -19,6 +19,15 @@ import { apiRequest, ApiError } from "@/services/api";
 const { Title } = Typography;
 const { Dragger } = Upload;
 
+interface CreateCourseFormValues {
+  titulo: string;
+  descricao: string;
+  cargaHoraria: number;
+  nomeProfessor: string;
+  areaConhecimento: number;
+  campus: number;
+}
+
 export default function CriarCursoPage() {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -40,7 +49,7 @@ export default function CriarCursoPage() {
       .catch(() => message.error("Não foi possível carregar a lista de campi."));
   }, [message]);
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: CreateCourseFormValues) => {
     setLoading(true);
 
     const courseData = {
@@ -49,7 +58,7 @@ export default function CriarCursoPage() {
       cargaHoraria: values.cargaHoraria,
       nomeProfessor: values.nomeProfessor,
       areaConhecimentoId: values.areaConhecimento,
-      campusId: values.campus, // 4. Incluir o campusId no payload
+      campusId: values.campus,
     };
     
     // ... (resto da função onFinish permanece igual)

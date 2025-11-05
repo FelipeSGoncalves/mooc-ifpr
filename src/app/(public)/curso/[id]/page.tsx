@@ -11,7 +11,7 @@ import Link from "next/link";
 // Usaremos o CSS da página do aluno para manter o estilo consistente
 import styles from "../../../(protected)/aluno/cursos/[id]/page.module.css"; 
 
-import { getCourseDetails, CourseDetails } from "@/services/courseService";
+import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService";
 import fallbackImage from "@/assets/mooc.jpeg";
 
 const { Title, Paragraph, Text } = Typography;
@@ -109,7 +109,7 @@ export default function PublicCoursePage() {
           <List
             bordered
             dataSource={course.aulas}
-            renderItem={(aula: any) => (
+            renderItem={(aula: LessonSummary) => (
               <List.Item
                 // Ícone de cadeado para indicar que precisa de login
                 extra={<LockOutlined style={{ color: 'rgba(0, 0, 0, 0.45)' }} />}

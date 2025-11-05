@@ -20,6 +20,17 @@ const { Title } = Typography;
 const { Dragger } = Upload;
 const { Option } = Select;
 
+
+interface EditCourseFormValues {
+  titulo: string;
+  descricao: string;
+  cargaHoraria: number;
+  nomeProfessor: string;
+  areaConhecimento: number;
+  campusId: number;
+  visivel: boolean;
+}
+
 export default function EditarCursoPage() {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -71,7 +82,7 @@ export default function EditarCursoPage() {
     fetchData();
   }, [id, form, message, router]);
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: EditCourseFormValues) => {
     setLoading(true);
     const courseData = {
       nome: values.titulo,
@@ -79,7 +90,7 @@ export default function EditarCursoPage() {
       cargaHoraria: values.cargaHoraria,
       nomeProfessor: values.nomeProfessor,
       areaConhecimentoId: values.areaConhecimento,
-      campusId: values.campusId, // 6. Inclui o campusId no payload de atualização
+      campusId: values.campusId, 
       visivel: values.visivel,
     };
 

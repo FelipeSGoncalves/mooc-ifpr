@@ -82,7 +82,7 @@ const ManagementList = ({ fetchItems, createItem, itemType }: {
         loading={loading}
         dataSource={items}
         renderItem={(item) => (
-          <List.Item actions={[ <Button type="text" icon={<EditOutlined />} disabled>Editar</Button> ]}>
+          <List.Item actions={[ <Button key="edit" type="text" icon={<EditOutlined />} disabled>Editar</Button> ]}>
             <List.Item.Meta
               title={item.name}
               description={<Tag color={item.visible ? 'green' : 'red'}>{item.visible ? 'Visível' : 'Oculto'}</Tag>}

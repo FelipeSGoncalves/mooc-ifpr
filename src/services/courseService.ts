@@ -90,7 +90,7 @@ export interface LessonSummary {
 }
 
 export interface CourseDetails {
-  campus: any;
+  campus: { id: number; nome: string };
   id: number;
   nome: string;
   descricao: string;

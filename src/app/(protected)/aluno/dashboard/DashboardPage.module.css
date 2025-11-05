@@ -88,3 +88,8 @@
 .container :global(.slick-next) {
   right: -40px !important;
 }
+
+.container :global(.slick-prev::after),
+.container :global(.slick-next::after) {
+  position: static !important;
+}

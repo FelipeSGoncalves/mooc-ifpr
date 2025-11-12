@@ -7,10 +7,10 @@ import { Typography, Button, List, Spin, App, Breadcrumb } from "antd";
 import { CheckCircleOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import VideoPlayer from "@/components/player/VideoPlayer"; // Verifique se o caminho está correto
+import VideoPlayer from "@/components/player/VideoPlayer"; 
 import styles from "./page.module.css";
-import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService"; // Verifique se o caminho está correto
-import { markLessonProgress, getLessonDetails, LessonDetails } from "@/services/lessonService"; // Verifique se o caminho está correto
+import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService"; 
+import { markLessonProgress, getLessonDetails, LessonDetails } from "@/services/lessonService"; 
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -21,7 +21,10 @@ export default function AulaPage() {
   const [loading, setLoading] = useState(true);
   const [canMarkAsComplete, setCanMarkAsComplete] = useState(false);
   
-  const secondsWatchedRef = useRef(0);
+  // ALTERAÇÃO 1: Usando os 'refs' numéricos
+  const secondsWatchedRef = useRef(0); // O "int comum" para o total de segundos
+  const lastProcessedSecondRef = useRef(0); // O "ajudante" para rastrear o último segundo contado
+  
   const totalDurationRef = useRef(0);
   
   const params = useParams();
@@ -35,7 +38,11 @@ export default function AulaPage() {
 
     const fetchData = async () => {
       setLoading(true);
-      secondsWatchedRef.current = 0;
+      
+      // ALTERAÇÃO 2: Resetar os contadores numéricos
+      secondsWatchedRef.current = 0; 
+      lastProcessedSecondRef.current = 0;
+      
       setCanMarkAsComplete(false);
 
       try {
@@ -74,7 +81,6 @@ export default function AulaPage() {
   const handleMarkAsComplete = async () => {
     if (!course?.inscricaoInfo || !currentLesson) return;
 
-    // Lógica para alternar o status (marcar/desmarcar)
     const newStatus = !currentLesson.concluido; 
     
     try {
@@ -93,8 +99,8 @@ export default function AulaPage() {
         return { ...prev, aulas: updatedAulas };
       });
 
-      // Se desmarcar, reavalia se o botão deve estar habilitado
       if (newStatus === false) {
+         // ALTERAÇÃO 3: Usar o 'int comum' (secondsWatchedRef)
          const watched = secondsWatchedRef.current;
          const total = totalDurationRef.current;
          if (total > 0 && watched >= total * 0.8) {
@@ -111,36 +117,85 @@ export default function AulaPage() {
   };
 
   const checkAndMarkComplete = () => {
-    if (currentLesson?.concluido) return; // Se já concluiu, não faz nada.
+    if (currentLesson?.concluido) return; 
 
+    // ALTERAÇÃO 4: A const 'watched' agora vem do 'int comum'
     const watched = secondsWatchedRef.current;
     const total = totalDurationRef.current;
     const percentageRequired = 0.8;
 
     if (total > 0 && watched >= total * percentageRequired) {
-      if (!canMarkAsComplete) { // Marca automaticamente apenas uma vez
-        console.log("Atingiu 80%! Marcando como concluída...");
+      if (!canMarkAsComplete) { 
+        console.log(`Atingiu ${Math.round(watched / total * 100)}% (${watched}/${total})! Marcando como concluída...`);
         setCanMarkAsComplete(true);
         handleMarkAsComplete();
       }
+    } else {
+        console.log(`Progresso: ${watched} segundos de ${total} (Requerido: ${total * percentageRequired})`);
     }
   };
 
   const handleDuration = (duration: number) => {
-    totalDurationRef.current = duration;
-    console.log(`Duração do vídeo: ${duration} segundos`);
+    totalDurationRef.current = Math.floor(duration);
+    console.log(`Duração do vídeo: ${totalDurationRef.current} segundos`);
   };
 
+  // #############################################################
+  // ALTERAÇÃO 5 (CORRIGIDA): Lógica que incrementa +1 e ignora pulos
+  // #############################################################
   const handleProgress = (state: { playedSeconds: number }) => {
-    secondsWatchedRef.current = state.playedSeconds;
+    const currentSecond = Math.floor(state.playedSeconds);
+    
+    // 1. Não faz nada se ainda estiver no mesmo segundo que já processamos
+    if (currentSecond === lastProcessedSecondRef.current) {
+        return;
+    }
+    
+    // 2. Handle de "Rewind" (voltar o vídeo)
+    // Se o segundo atual for MENOR que o último, o usuário voltou.
+    // Apenas atualizamos o ponteiro, não contamos nada.
+    if (currentSecond < lastProcessedSecondRef.current) {
+        lastProcessedSecondRef.current = currentSecond;
+        return;
+    }
+
+    // 3. Handle de "Play" normal ou "Skip" (pulo para frente)
+    if (currentSecond > lastProcessedSecondRef.current) {
+        
+        // Calcula a diferença de segundos desde a última verificação
+        const difference = currentSecond - lastProcessedSecondRef.current;
+        
+        // Se a diferença for pequena (1 ou 2), é play normal.
+        // (Usamos <= 2 por segurança, caso o evento onTimeUpdate pule 1 segundo)
+        if (difference <= 2) { 
+            // Incrementa o "int comum" com a diferença (normalmente 1)
+            secondsWatchedRef.current += difference;
+        } 
+        // Se a 'difference' for > 2 (ex: 138), foi um PULO.
+        // NENHUM segundo é adicionado ao 'secondsWatchedRef.current'.
+        
+        // Finalmente, atualizamos o último segundo processado,
+        // seja num skip (ex: 140) ou num play normal (ex: 3)
+        lastProcessedSecondRef.current = currentSecond;
+    }
+    
+    // Roda a verificação de progresso após qualquer lógica
     checkAndMarkComplete();
   };
 
   const handleEnded = () => {
     console.log("Vídeo terminou. Fazendo verificação final.");
-    if (totalDurationRef.current > 0) {
-      secondsWatchedRef.current = totalDurationRef.current;
+    
+    // ALTERAÇÃO 6: Garante que o total assistido seja, no mínimo, a duração total
+    const totalDuration = totalDurationRef.current;
+    if (secondsWatchedRef.current < totalDuration) {
+        // Garante que o último segundo seja contado
+        // (Ex: se o vídeo tem 59.8s e o último 'currentSecond' foi 59)
+        if (totalDuration - secondsWatchedRef.current <= 2) {
+           secondsWatchedRef.current = totalDuration;
+        }
     }
+    
     checkAndMarkComplete();
   };
 
@@ -173,7 +228,6 @@ export default function AulaPage() {
                 height="100%"
                 controls={true}
                 onLoadedMetadata={(e) => handleDuration((e.currentTarget as HTMLVideoElement).duration)}
-                // Adapta para receber o evento padrão do vídeo HTML
                 onTimeUpdate={(e: React.SyntheticEvent<HTMLVideoElement>) => {
                   const video = e.currentTarget as HTMLVideoElement;
                   handleProgress({ playedSeconds: video.currentTime });

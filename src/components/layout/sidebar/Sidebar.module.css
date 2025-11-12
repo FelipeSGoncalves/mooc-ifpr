@@ -1,0 +1,117 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 260px;
+  min-height: 100vh;
+  background-color: var(--cor-primaria);
+  color: var(--cor-texto-claro);
+  padding: 20px 0;
+  transition: width 0.2s ease-in-out;
+  flex-shrink: 0; /* Impede que a sidebar seja esmagada */
+}
+
+.logoContainer {
+  padding: 0 25px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+  overflow: hidden; /* Garante que a imagem não vaze */
+}
+
+.logoContainer img {
+  transition: opacity 0.2s;
+}
+
+.nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 15px 25px;
+  color: var(--cor-texto-claro);
+  text-decoration: none;
+  font-size: 16px;
+  border-left: 4px solid transparent;
+  white-space: nowrap; /* Impede que o texto quebre linha */
+  overflow: hidden;
+}
+
+.navLink:hover {
+  background-color: var(--cor-primaria-clara);
+}
+
+.active {
+  background-color: var(--cor-primaria-clara);
+  font-weight: 500;
+  border-left: 4px solid var(--cor-destaque);
+}
+
+.icon {
+  margin-right: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.footer {
+  border-top: 1px solid var(--cor-primaria-clara);
+  padding-top: 10px;
+}
+
+.profileContainer, .collapseButton {
+  padding: 10px 0;
+}
+
+.profileButton, .collapseButton {
+  display: flex;
+  align-items: center;
+  padding: 15px 25px;
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--cor-texto-claro);
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.profileButton:hover, .collapseButton:hover {
+  background-color: var(--cor-primaria-clara);
+}
+
+/* --- NOVAS CLASSES PARA O RECOLHIMENTO --- */
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar.collapsed .logoContainer {
+  padding: 0;
+}
+
+.sidebar.collapsed .logoContainer img {
+  opacity: 0; /* Esconde o logo para evitar que ele seja cortado */
+}
+
+.sidebar.collapsed .navText {
+  display: none; /* Esconde o texto dos links e botões */
+}
+
+.sidebar.collapsed .navLink,
+.sidebar.collapsed .profileButton,
+.sidebar.collapsed .collapseButton {
+  justify-content: center;
+  padding: 15px 0;
+}
+
+.sidebar.collapsed .icon {
+  margin-right: 0;
+}

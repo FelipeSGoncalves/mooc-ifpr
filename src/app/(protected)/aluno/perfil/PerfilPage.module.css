@@ -1,0 +1,14 @@
+.container {
+  background: var(--cor-fundo-card);
+  padding: 24px;
+  border-radius: var(--raio-borda-padrao);
+  margin: 0 auto;
+  max-width: 900px;
+}
+
+.spinContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}

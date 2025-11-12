@@ -1,0 +1,132 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  /* A cor de fundo agora vem do antd-theme.tsx */
+  border-bottom: 1px solid #343a40; /* Borda sutil um pouco mais clara */
+  height: 80px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 24px;
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.desktopNav {
+  display: flex;
+  gap: 16px;
+  margin: 0 auto;
+}
+
+.navLink {
+  color: rgba(255, 255, 255, 0.7); /* LETRA BRANCA com transparência */
+  font-weight: 500;
+  padding: 8px 4px;
+  transition: color 0.3s ease;
+  position: relative;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--cor-destaque);
+  transition: width 0.3s ease;
+}
+
+.navLink:hover {
+  color: #fff; /* LETRA BRANCA */
+}
+
+.navLink.active {
+  color: #fff; /* LETRA BRANCA */
+}
+
+.navLink.active::after,
+.navLink:hover::after {
+  width: 100%;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* O botão 'ghost' do Ant Design se adapta bem ao fundo escuro */
+.loginButton {
+  font-weight: 600 !important;
+}
+
+.registerButton {
+  font-weight: 600 !important;
+}
+
+.mobileToggle {
+  display: none;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  cursor: pointer;
+  color: #fff; /* LETRA BRANCA */
+}
+
+/* Ajustes no menu mobile para fundo escuro */
+.drawer :global(.ant-drawer-header) {
+    background-color: #212529;
+}
+.drawer :global(.ant-drawer-body) {
+  background-color: #212529;
+}
+.drawer :global(.ant-drawer-header-title) .ant-drawer-close {
+  color: #fff;
+}
+.drawerNav {
+  display: flex;
+  flex-direction: column;
+}
+.drawerLink {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 18px;
+  padding: 16px 0;
+  text-decoration: none;
+  border-bottom: 1px solid #343a40;
+}
+.drawerButtons {
+  margin-top: auto;
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .desktopNav, .buttonGroup {
+    display: none;
+  }
+  .mobileToggle {
+    display: block;
+    margin-left: auto;
+  }
+}

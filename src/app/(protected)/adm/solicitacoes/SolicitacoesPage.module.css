@@ -1,0 +1,14 @@
+.container {
+    background: #fff;
+    padding: 24px;
+    border-radius: 8px;
+}
+
+.pageTitle {
+  font-weight: 600;
+  margin-bottom: 24px !important;
+}
+
+.filterGroup {
+    margin-bottom: 24px;
+}

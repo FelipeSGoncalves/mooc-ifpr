@@ -1,0 +1,33 @@
+.container {
+  width: 100%;
+  padding: 32px;
+  border-radius: 12px;
+  background-color: var(--cor-fundo-card);
+  border: 1px solid var(--cor-borda);
+  box-shadow: var(--sombra-padrao);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.title {
+  text-align: center;
+  margin: 0;
+  color: var(--cor-primaria);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.helper {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.link {
+  color: var(--cor-destaque);
+  font-weight: 600;
+}

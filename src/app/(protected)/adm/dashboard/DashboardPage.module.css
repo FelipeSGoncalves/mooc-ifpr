@@ -1,0 +1,70 @@
+.container {
+  padding: 16px;
+}
+
+.pageTitle {
+  font-weight: 600;
+  margin-bottom: 24px !important; /* Adicionado !important para garantir a sobreposição */
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid #f0f0f0;
+  height: 100%;
+}
+
+.cardIcon {
+  font-size: 28px;
+  color: var(--cor-primaria);
+  background-color: #e6f7ff;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitle {
+  color: #8c8c8c;
+  margin-bottom: 4px;
+}
+
+.cardValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: #262626;
+  line-height: 1.2;
+}
+
+/* --- NOVOS ESTILOS PARA SEÇÃO DE CONFIGURAÇÃO --- */
+.configSection {
+    margin-top: 48px; /* Aumenta o espaço entre as seções */
+}
+
+.sectionTitle {
+    margin-bottom: 24px !important;
+}
+
+.addForm {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.settingItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}

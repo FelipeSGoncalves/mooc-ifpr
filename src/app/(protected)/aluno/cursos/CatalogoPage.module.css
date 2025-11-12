@@ -1,0 +1,54 @@
+.container {
+  background: var(--cor-fundo-card);
+  padding: 24px;
+  border-radius: var(--raio-borda-padrao);
+  margin: 0 auto;
+}
+
+.filterBar {
+  margin-bottom: 24px;
+  padding: 20px;
+  background-color: #fafafa;
+  border: 1px solid #f0f0f0;
+  border-radius: var(--raio-borda-padrao);
+}
+
+.filterBar label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--cor-texto-principal);
+}
+
+.courseCard {
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+}
+
+.courseCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--sombra-padrao);
+}
+
+.courseCard .ant-card-body {
+  padding: 16px;
+}
+
+.areaTag {
+  margin-bottom: 12px;
+}
+
+.cardFooter {
+  margin-top: 16px;
+  color: #8c8c8c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.spinContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}

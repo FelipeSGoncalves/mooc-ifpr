@@ -1,0 +1,36 @@
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--cor-fundo-pagina);
+  color: var(--cor-texto-principal);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+:root {
+  /* Paleta de Cores Principal */
+  --cor-primaria: #0b261C;
+  --cor-primaria-clara: #1A4032;
+  --cor-primaria-escura: #001205;
+  --cor-destaque: #038A71;
+  /* --cor-secundaria: #FFC107; */
+  /* --cor-accent: #E91E63; */
+
+  /* Cores de Texto */
+  --cor-texto-principal: #123528;
+  --cor-texto-claro: #ffffff;
+  --cor-texto-destaque: #038A71;
+  /* --cor-texto-secundario: #757575; */
+
+  /* Cores de Fundo e Bordas */
+  --cor-fundo-pagina: #F2F2F2;
+  --cor-fundo-card: #ffffff;
+  --cor-borda: #00d6af;
+
+  /* Outras Variáveis Úteis */
+  --raio-borda-padrao: 4px;
+  --sombra-padrao: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

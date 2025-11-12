@@ -1,0 +1,40 @@
+.container {
+  background: var(--cor-fundo-card);
+  padding: 24px;
+  border-radius: var(--raio-borda-padrao);
+  margin: 0 auto;
+}
+
+.searchBar {
+  margin-bottom: 24px;
+  max-width: 500px; /* Limita a largura da barra de busca */
+}
+
+.spinContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.certificateCard {
+  border: 1px solid #f0f0f0;
+}
+
+.certificateCard .ant-card-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* Espaço entre o título e o botão */
+}
+
+/* Garante que o título não quebre em muitas linhas */
+.certificateCard :global(.ant-card-meta-title) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.downloadButton {
+  width: 100%;
+}

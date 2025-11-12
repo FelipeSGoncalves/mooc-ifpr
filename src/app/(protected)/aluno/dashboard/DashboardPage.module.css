@@ -1,0 +1,95 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.section {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+/* Novo: Estilo para o cabeçalho da seção (título + botão) */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.sectionHeader h3 {
+  margin-bottom: 0 !important;
+}
+
+.spinContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* Novo: Estilo para cada item dentro do carrossel */
+.carouselItem {
+  padding: 8px;
+}
+
+/* Estilos dos Cards (reaproveitados) */
+.courseCard {
+  transition: all 0.3s ease;
+  border: 3px solid #f0f0f0;
+  height: 100%;
+}
+
+.courseCard:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--sombra-padrao);
+}
+
+.courseCard .ant-card-body {
+  padding: 16px;
+}
+
+.areaTag {
+  margin-bottom: 18px;
+}
+
+.cardFooter {
+  margin-top: 16px;
+  color: #8c8c8c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Novo: Estilizando as setas do carrossel para ficarem mais visíveis */
+.container :global(.slick-arrow) {
+  background-color: rgba(0, 0, 0, 0.35) !important;
+  
+  color: white !important;
+  border-radius: 50%;
+  z-index: 1;
+  height: 30px;
+  width: 30px;
+}
+.container :global(.slick-arrow:before) {
+  color: white !important;
+}
+
+.container :global(.slick-arrow:hover) {
+  background-color: rgba(0, 0, 0, 0.55) !important;
+}
+
+.container :global(.slick-prev) {
+  left: -40px !important;
+  
+}
+.container :global(.slick-next) {
+  right: -40px !important;
+}
+
+.container :global(.slick-prev::after),
+.container :global(.slick-next::after) {
+  position: static !important;
+}

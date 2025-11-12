@@ -14,8 +14,6 @@ export default function AlunoLayout({ children }: { children: React.ReactNode })
     }
   }, []);
   
-  // A lógica de verificação de role e o hook useAuth foram removidos.
-  // O middleware já garantiu que apenas alunos cheguem aqui.
 
   return (
     <div className={styles.container}>

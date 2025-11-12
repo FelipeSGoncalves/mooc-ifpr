@@ -8,7 +8,6 @@ import { LockOutlined } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-// Usaremos o CSS da página do aluno para manter o estilo consistente
 import styles from "../../../(protected)/aluno/cursos/[id]/page.module.css"; 
 
 import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService";
@@ -67,7 +66,6 @@ export default function PublicCoursePage() {
         ]}
       />
       <Row gutter={[48, 32]}>
-          {/* Coluna da Esquerda: Detalhes do Curso */}
           <Col xs={24} lg={16}>
             <Title level={2} style={{ marginBottom: 16 }}>{course.nome}</Title>
             <Paragraph>{course.descricao}</Paragraph>

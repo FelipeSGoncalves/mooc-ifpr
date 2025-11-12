@@ -14,10 +14,8 @@ import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
 const { Title } = Typography;
 const { Meta } = Card;
 
-// 2. Criar um componente auxiliar para o link
 const CourseCardLink = ({ course, children }: { course: Course, children: React.ReactNode }) => {
   const { user } = useAuth();
-  // CORREÇÃO: Alterado de '/aluno/curso/[id]' para '/aluno/cursos/[id]'
   const href = user ? `/aluno/cursos/${course.id}` : `/curso/${course.id}`;
   
   return <Link href={href}>{children}</Link>;
@@ -49,7 +47,6 @@ export default function CatalogoCursos() {
   return (
     <section className={styles.wrapper}>
       <div className={styles.inner}>
-        {/* ... (seu header e controles de filtro continuam iguais) ... */}
         <header className={styles.header}>
           <h1 className={styles.title}>Catálogo de Cursos</h1>
           <p className={styles.subtitle}>
@@ -70,7 +67,6 @@ export default function CatalogoCursos() {
         {loading ? <div className={styles.grid}><Spin size="large"/></div> : (
           <div className={styles.grid}>
             {courses.map((course) => (
-              // 3. Usar o novo componente de Link inteligente
               <CourseCardLink key={course.id} course={course}>
                 <article className={styles.card}>
                   <div className={styles.thumbWrapper}>

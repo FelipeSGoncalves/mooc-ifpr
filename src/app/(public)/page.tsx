@@ -18,7 +18,7 @@ import styles from "./HomePage.module.css";
 
 import { getCourses, Course } from "@/services/courseService";
 import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
-import heroImage from "@/assets/pessoasLogin.png"; // Imagem da seção de boas-vindas
+import heroImage from "@/assets/pessoasLogin.png"; 
 
 const { Title, Paragraph, Text } = Typography;
 const { Meta } = Card;
@@ -100,7 +100,6 @@ export default function HomePage() {
 
   return (
     <div className={styles.container}>
-      {/* Seção de Boas-vindas */}
       <section className={styles.heroSection}>
         <div className={styles.heroImage}>
           <Image src={heroImage} alt="Ilustração de pessoas estudando online" priority fill sizes="(max-width: 991px) 100vw, 50vw" />
@@ -125,7 +124,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Seção de Principais Cursos */}
       <section className={styles.coursesSection}>
         <Title level={3}>Principais Cursos</Title>
         {renderCourseCarousel()}

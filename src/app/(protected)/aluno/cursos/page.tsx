@@ -24,7 +24,6 @@ export default function CatalogoPage() {
   const [direction, setDirection] = useState<"desc" | "asc">("desc");
 
   useEffect(() => {
-    // ... (lógica para buscar áreas continua igual)
     const fetchAreas = async () => {
       try {
         const data = await getKnowledgeAreas();
@@ -37,7 +36,6 @@ export default function CatalogoPage() {
   }, [message]);
 
   useEffect(() => {
-    // ... (lógica para buscar cursos continua igual)
     const fetchCourses = async () => {
       setLoading(true);
       try {
@@ -56,7 +54,6 @@ export default function CatalogoPage() {
   return (
     <div className={styles.container}>
       <Title level={2}>Catálogo de Cursos</Title>
-      {/* ... (filtros continuam iguais) ... */}
       <div className={styles.filterBar}>
         <Row gutter={[16, 16]} align="bottom">
             <Col xs={24} md={12} lg={10}><label>Pesquisar por nome</label><Search placeholder="Digite o nome do curso" onSearch={(value) => setSearchTerm(value)} enterButton size="large"/></Col>
@@ -72,7 +69,6 @@ export default function CatalogoPage() {
           dataSource={courses}
           renderItem={(course) => (
             <List.Item>
-              {/* CORREÇÃO PRINCIPAL: O link agora aponta para a rota protegida do aluno */}
               <Link href={`/aluno/cursos/${course.id}`}>
                 <Card
                   hoverable

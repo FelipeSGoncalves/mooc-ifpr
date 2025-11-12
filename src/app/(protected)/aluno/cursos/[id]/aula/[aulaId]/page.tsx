@@ -1,4 +1,3 @@
-// src/pages/aluno/cursos/[id]/aula/[aulaId]/page.tsx
 
 "use client";
 
@@ -21,9 +20,9 @@ export default function AulaPage() {
   const [loading, setLoading] = useState(true);
   const [canMarkAsComplete, setCanMarkAsComplete] = useState(false);
   
-  // ALTERAÇÃO 1: Usando os 'refs' numéricos
-  const secondsWatchedRef = useRef(0); // O "int comum" para o total de segundos
-  const lastProcessedSecondRef = useRef(0); // O "ajudante" para rastrear o último segundo contado
+  
+  const secondsWatchedRef = useRef(0); 
+  const lastProcessedSecondRef = useRef(0);
   
   const totalDurationRef = useRef(0);
   
@@ -38,8 +37,7 @@ export default function AulaPage() {
 
     const fetchData = async () => {
       setLoading(true);
-      
-      // ALTERAÇÃO 2: Resetar os contadores numéricos
+
       secondsWatchedRef.current = 0; 
       lastProcessedSecondRef.current = 0;
       
@@ -100,7 +98,6 @@ export default function AulaPage() {
       });
 
       if (newStatus === false) {
-         // ALTERAÇÃO 3: Usar o 'int comum' (secondsWatchedRef)
          const watched = secondsWatchedRef.current;
          const total = totalDurationRef.current;
          if (total > 0 && watched >= total * 0.8) {
@@ -119,7 +116,7 @@ export default function AulaPage() {
   const checkAndMarkComplete = () => {
     if (currentLesson?.concluido) return; 
 
-    // ALTERAÇÃO 4: A const 'watched' agora vem do 'int comum'
+
     const watched = secondsWatchedRef.current;
     const total = totalDurationRef.current;
     const percentageRequired = 0.8;
@@ -140,57 +137,45 @@ export default function AulaPage() {
     console.log(`Duração do vídeo: ${totalDurationRef.current} segundos`);
   };
 
-  // #############################################################
-  // ALTERAÇÃO 5 (CORRIGIDA): Lógica que incrementa +1 e ignora pulos
-  // #############################################################
+
   const handleProgress = (state: { playedSeconds: number }) => {
     const currentSecond = Math.floor(state.playedSeconds);
     
-    // 1. Não faz nada se ainda estiver no mesmo segundo que já processamos
+
     if (currentSecond === lastProcessedSecondRef.current) {
         return;
     }
     
-    // 2. Handle de "Rewind" (voltar o vídeo)
-    // Se o segundo atual for MENOR que o último, o usuário voltou.
-    // Apenas atualizamos o ponteiro, não contamos nada.
+    
     if (currentSecond < lastProcessedSecondRef.current) {
         lastProcessedSecondRef.current = currentSecond;
         return;
     }
 
-    // 3. Handle de "Play" normal ou "Skip" (pulo para frente)
     if (currentSecond > lastProcessedSecondRef.current) {
         
-        // Calcula a diferença de segundos desde a última verificação
+
         const difference = currentSecond - lastProcessedSecondRef.current;
         
-        // Se a diferença for pequena (1 ou 2), é play normal.
-        // (Usamos <= 2 por segurança, caso o evento onTimeUpdate pule 1 segundo)
+        
         if (difference <= 2) { 
-            // Incrementa o "int comum" com a diferença (normalmente 1)
+           
             secondsWatchedRef.current += difference;
         } 
-        // Se a 'difference' for > 2 (ex: 138), foi um PULO.
-        // NENHUM segundo é adicionado ao 'secondsWatchedRef.current'.
         
-        // Finalmente, atualizamos o último segundo processado,
-        // seja num skip (ex: 140) ou num play normal (ex: 3)
         lastProcessedSecondRef.current = currentSecond;
     }
     
-    // Roda a verificação de progresso após qualquer lógica
+    
     checkAndMarkComplete();
   };
 
   const handleEnded = () => {
     console.log("Vídeo terminou. Fazendo verificação final.");
     
-    // ALTERAÇÃO 6: Garante que o total assistido seja, no mínimo, a duração total
+    
     const totalDuration = totalDurationRef.current;
     if (secondsWatchedRef.current < totalDuration) {
-        // Garante que o último segundo seja contado
-        // (Ex: se o vídeo tem 59.8s e o último 'currentSecond' foi 59)
         if (totalDuration - secondsWatchedRef.current <= 2) {
            secondsWatchedRef.current = totalDuration;
         }

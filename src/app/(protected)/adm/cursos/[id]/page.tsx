@@ -23,7 +23,6 @@ import fallbackImage from "@/assets/mooc.jpeg";
 
 const { Title, Paragraph, Text } = Typography;
 
-// Componente de Item Arrastável ATUALIZADO com botão de Editar
 const SortableLesson = ({ lesson, courseId, onDelete }: { lesson: LessonSummary; courseId: string; onDelete: (id: number) => void }) => {
     const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: lesson.id });
     const style = { transform: CSS.Transform.toString(transform), transition };
@@ -125,17 +124,14 @@ export default function ApresentacaoCursoPage() {
   const handleToggleVisibility = async () => {
     if (!course) return;
     
-    // ATENÇÃO: A lógica de toggle foi simplificada, assumindo que o DTO do PUT aceita apenas os campos necessários.
-    // O ideal seria ter um endpoint PATCH para isso, mas PUT funciona.
     const newVisibility = !course.visivel;
     const action = newVisibility ? "publicado" : "privado";
     try {
-        // Criamos um payload apenas com os campos que o `CourseUpdateReqDto` espera.
         const updatePayload = {
             nome: course.nome,
             descricao: course.descricao,
             areaConhecimentoId: course.areaConhecimento.id,
-            campusId: 1, // Assumindo campusId 1, idealmente viria do `course.campus.id`
+            campusId: 1,
             nomeProfessor: course.nomeProfessor,
             cargaHoraria: course.cargaHoraria,
             visivel: newVisibility,

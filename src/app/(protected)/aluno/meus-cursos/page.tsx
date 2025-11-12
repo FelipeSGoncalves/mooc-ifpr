@@ -166,7 +166,6 @@ export default function MeusCursosPage() {
                   <div className={styles.cardFooter}>
                     <ClockCircleOutlined /> {course.cargaHoraria} horas
                   </div>
-                  {/* --- CÓDIGO CORRIGIDO AQUI --- */}
                   <div className={styles.statusTag}>
                     {course.concluido ? (
                       <Tag color="green">Concluído</Tag>

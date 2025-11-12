@@ -12,7 +12,6 @@ import type { RcFile, UploadFile } from "antd/es/upload/interface";
 import { parseCookies } from "nookies";
 
 import { getKnowledgeAreas, KnowledgeArea, uploadCourseThumbnail } from "@/services/courseService";
-// 1. Importar a função para buscar os campi
 import { getCampuses, ConfigItem } from "@/services/configurationService";
 import { apiRequest, ApiError } from "@/services/api";
 
@@ -33,17 +32,15 @@ export default function CriarCursoPage() {
   const router = useRouter();
   const { message } = App.useApp();
   const [knowledgeAreas, setKnowledgeAreas] = useState<KnowledgeArea[]>([]);
-  const [campuses, setCampuses] = useState<ConfigItem[]>([]); // 2. Estado para os campi
+  const [campuses, setCampuses] = useState<ConfigItem[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Busca Áreas de Conhecimento
     getKnowledgeAreas()
       .then(data => setKnowledgeAreas(data.conteudo || []))
       .catch(() => message.error("Não foi possível carregar as áreas de conhecimento."));
 
-    // 3. Busca os Campi
     getCampuses()
       .then(data => setCampuses(data.conteudo || []))
       .catch(() => message.error("Não foi possível carregar a lista de campi."));
@@ -61,7 +58,6 @@ export default function CriarCursoPage() {
       campusId: values.campus,
     };
     
-    // ... (resto da função onFinish permanece igual)
     const token = parseCookies().jwt_token;
     if (!token) { message.error("Autenticação expirou."); setLoading(false); return; }
     try {

@@ -8,8 +8,8 @@ import {
   App,
   Card,
   Tag,
-  Carousel, // Importando o Carousel
-  Button, // Importando o Button
+  Carousel, 
+  Button, 
 } from "antd";
 import { ClockCircleOutlined } from "@ant-design/icons";
 import Image from "next/image";
@@ -23,7 +23,7 @@ import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
 const { Title } = Typography;
 const { Meta } = Card;
 
-// Interface para os cursos matriculados
+
 interface MyCourse {
   enrollmentId: number;
   cursoId: number;
@@ -36,7 +36,7 @@ interface MyCourse {
   };
 }
 
-// Configurações do Carousel para responsividade
+
 const carouselSettings = {
   dots: true,
   infinite: false,
@@ -77,7 +77,6 @@ export default function AlunoDashboardPage() {
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
 
   useEffect(() => {
-    // Buscar cursos em andamento
     const fetchInProgressCourses = async () => {
       setLoadingInProgress(true);
       try {
@@ -90,7 +89,6 @@ export default function AlunoDashboardPage() {
       }
     };
 
-    // Buscar cursos para sugestão
     const fetchSuggestedCourses = async () => {
       setLoadingSuggestions(true);
       try {
@@ -107,7 +105,6 @@ export default function AlunoDashboardPage() {
     fetchSuggestedCourses();
   }, [message]);
   
-  // Função para renderizar um carrossel de cursos
   const renderCourseCarousel = (loading: boolean, courses: (MyCourse | Course)[], isMyCourse: boolean) => {
     if (loading) {
       return (

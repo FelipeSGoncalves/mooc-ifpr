@@ -16,7 +16,6 @@ import styles from "./PerfilPage.module.css";
 
 import { getCurrentUserDetails } from "@/services/userService";
 
-// Defina a interface UserDetails localmente, já que não está exportada do serviço
 interface UserDetails {
   id: number;
   fullName: string;
@@ -38,11 +37,7 @@ export default function PerfilPage() {
     const fetchUserData = async () => {
       setLoading(true);
       try {
-        // Simulação de endpoint, pois ele não existe no backend
-        // const data = await getCurrentUserDetails();
-        
-        // --- DADOS MOCADOS (Temporário) ---
-        // Substituir pela linha comentada acima quando o backend tiver o endpoint GET /users/me
+      
         const mockData: UserDetails = {
             id: 1,
             fullName: "Aluno Teste",
@@ -54,10 +49,9 @@ export default function PerfilPage() {
         };
         await new Promise(resolve => setTimeout(resolve, 500)); // Simula delay da rede
         setUser(mockData);
-        // --- FIM DOS DADOS MOCADOS ---
+       
 
       } catch (error) {
-        // Este `catch` funcionará quando o endpoint real for usado
         message.error("Não foi possível carregar os dados do seu perfil.");
       } finally {
         setLoading(false);

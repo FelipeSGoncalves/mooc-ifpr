@@ -14,9 +14,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   }, []);
   
-  // A lógica de verificação de role foi removida, o middleware já fez isso.
-  // O hook useAuth também não é mais necessário aqui.
-
   return (
     <div className={styles.container}>
       <SidebarAdm

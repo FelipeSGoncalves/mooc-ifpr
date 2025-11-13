@@ -79,7 +79,6 @@ export default function AlunoCursoPage() {
     }
   };
 
-  // --- LÓGICA DE BOTÕES ATUALIZADA ---
   const renderActionButtons = () => {
     // Se não estiver inscrito
     if (!course || !course.inscricaoInfo?.estaInscrito) {
@@ -112,7 +111,6 @@ export default function AlunoCursoPage() {
         );
       }
 
-      // Por padrão (status 'analise' ou indefinido)
       return (
         <Tooltip title="Caso seu certificado tenha sido aprovado ele estará disponível na aba de certificados">
           <Button type="primary" size="large" icon={<HourglassOutlined />} disabled>

@@ -8,7 +8,6 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { getCourses, getKnowledgeAreas, Course, KnowledgeArea } from "@/services/courseService";
-// 1. Importar a imagem de fallback
 import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png"; 
 
 const { Title } = Typography;
@@ -16,7 +15,7 @@ const { Search } = Input;
 const { Meta } = Card;
 
 export default function CursosPage() {
-  const { message } = App.useApp(); // Usar o hook para messages
+  const { message } = App.useApp(); 
   const [courses, setCourses] = useState<Course[]>([]);
   const [knowledgeAreas, setKnowledgeAreas] = useState<KnowledgeArea[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -52,7 +51,6 @@ export default function CursosPage() {
     fetchCourses();
   }, [searchTerm, areaId, direction, message]);
 
-  // ... (suas funções handleSearch, etc. continuam iguais)
   const handleSearch = (value: string) => setSearchTerm(value);
   const handleAreaChange = (value: number) => setAreaId(value);
   const handleSortChange = (value: "desc" | "asc") => setDirection(value);
@@ -60,7 +58,6 @@ export default function CursosPage() {
   return (
     <div className={styles.container}>
       <Title level={2}>Catálogo de Cursos (Admin)</Title>
-      {/* ... (seu JSX de filtros continua igual) ... */}
       <div className={styles.filterBar}>
         <Row gutter={[16, 16]} align="bottom">
           <Col xs={24} md={12} lg={10}>
@@ -94,7 +91,6 @@ export default function CursosPage() {
                   cover={
                     <Image
                       alt={course.nome}
-                      // 2. Usar a imagem importada como fallback
                       src={course.miniatura || fallbackImage}
                       width={300}
                       height={170}

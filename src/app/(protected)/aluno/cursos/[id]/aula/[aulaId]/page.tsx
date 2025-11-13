@@ -1,4 +1,3 @@
-// src/pages/aluno/cursos/[id]/aula/[aulaId]/page.tsx
 
 "use client";
 
@@ -7,10 +6,10 @@ import { Typography, Button, List, Spin, App, Breadcrumb } from "antd";
 import { CheckCircleOutlined, LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import VideoPlayer from "@/components/player/VideoPlayer"; // Verifique se o caminho está correto
+import VideoPlayer from "@/components/player/VideoPlayer"; 
 import styles from "./page.module.css";
-import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService"; // Verifique se o caminho está correto
-import { markLessonProgress, getLessonDetails, LessonDetails } from "@/services/lessonService"; // Verifique se o caminho está correto
+import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService"; 
+import { markLessonProgress, getLessonDetails, LessonDetails } from "@/services/lessonService"; 
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -21,7 +20,10 @@ export default function AulaPage() {
   const [loading, setLoading] = useState(true);
   const [canMarkAsComplete, setCanMarkAsComplete] = useState(false);
   
-  const secondsWatchedRef = useRef(0);
+  
+  const secondsWatchedRef = useRef(0); 
+  const lastProcessedSecondRef = useRef(0);
+  
   const totalDurationRef = useRef(0);
   
   const params = useParams();
@@ -35,7 +37,10 @@ export default function AulaPage() {
 
     const fetchData = async () => {
       setLoading(true);
-      secondsWatchedRef.current = 0;
+
+      secondsWatchedRef.current = 0; 
+      lastProcessedSecondRef.current = 0;
+      
       setCanMarkAsComplete(false);
 
       try {
@@ -74,7 +79,6 @@ export default function AulaPage() {
   const handleMarkAsComplete = async () => {
     if (!course?.inscricaoInfo || !currentLesson) return;
 
-    // Lógica para alternar o status (marcar/desmarcar)
     const newStatus = !currentLesson.concluido; 
     
     try {
@@ -93,7 +97,6 @@ export default function AulaPage() {
         return { ...prev, aulas: updatedAulas };
       });
 
-      // Se desmarcar, reavalia se o botão deve estar habilitado
       if (newStatus === false) {
          const watched = secondsWatchedRef.current;
          const total = totalDurationRef.current;
@@ -111,36 +114,73 @@ export default function AulaPage() {
   };
 
   const checkAndMarkComplete = () => {
-    if (currentLesson?.concluido) return; // Se já concluiu, não faz nada.
+    if (currentLesson?.concluido) return; 
+
 
     const watched = secondsWatchedRef.current;
     const total = totalDurationRef.current;
     const percentageRequired = 0.8;
 
     if (total > 0 && watched >= total * percentageRequired) {
-      if (!canMarkAsComplete) { // Marca automaticamente apenas uma vez
-        console.log("Atingiu 80%! Marcando como concluída...");
+      if (!canMarkAsComplete) { 
+        console.log(`Atingiu ${Math.round(watched / total * 100)}% (${watched}/${total})! Marcando como concluída...`);
         setCanMarkAsComplete(true);
         handleMarkAsComplete();
       }
+    } else {
+        console.log(`Progresso: ${watched} segundos de ${total} (Requerido: ${total * percentageRequired})`);
     }
   };
 
   const handleDuration = (duration: number) => {
-    totalDurationRef.current = duration;
-    console.log(`Duração do vídeo: ${duration} segundos`);
+    totalDurationRef.current = Math.floor(duration);
+    console.log(`Duração do vídeo: ${totalDurationRef.current} segundos`);
   };
 
+
   const handleProgress = (state: { playedSeconds: number }) => {
-    secondsWatchedRef.current = state.playedSeconds;
+    const currentSecond = Math.floor(state.playedSeconds);
+    
+
+    if (currentSecond === lastProcessedSecondRef.current) {
+        return;
+    }
+    
+    
+    if (currentSecond < lastProcessedSecondRef.current) {
+        lastProcessedSecondRef.current = currentSecond;
+        return;
+    }
+
+    if (currentSecond > lastProcessedSecondRef.current) {
+        
+
+        const difference = currentSecond - lastProcessedSecondRef.current;
+        
+        
+        if (difference <= 2) { 
+           
+            secondsWatchedRef.current += difference;
+        } 
+        
+        lastProcessedSecondRef.current = currentSecond;
+    }
+    
+    
     checkAndMarkComplete();
   };
 
   const handleEnded = () => {
     console.log("Vídeo terminou. Fazendo verificação final.");
-    if (totalDurationRef.current > 0) {
-      secondsWatchedRef.current = totalDurationRef.current;
+    
+    
+    const totalDuration = totalDurationRef.current;
+    if (secondsWatchedRef.current < totalDuration) {
+        if (totalDuration - secondsWatchedRef.current <= 2) {
+           secondsWatchedRef.current = totalDuration;
+        }
     }
+    
     checkAndMarkComplete();
   };
 
@@ -173,7 +213,6 @@ export default function AulaPage() {
                 height="100%"
                 controls={true}
                 onLoadedMetadata={(e) => handleDuration((e.currentTarget as HTMLVideoElement).duration)}
-                // Adapta para receber o evento padrão do vídeo HTML
                 onTimeUpdate={(e: React.SyntheticEvent<HTMLVideoElement>) => {
                   const video = e.currentTarget as HTMLVideoElement;
                   handleProgress({ playedSeconds: video.currentTime });

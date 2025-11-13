@@ -17,7 +17,6 @@ import {
 
 const { Title, Text } = Typography;
 
-// Componente ManagementList (sem alterações)
 const ManagementList = ({ fetchItems, createItem, itemType }: {
   fetchItems: () => Promise<{ conteudo: ConfigItem[] }>;
   createItem: (name: string) => Promise<ConfigItem>;
@@ -134,7 +133,6 @@ export default function DashboardPage() {
     <div className={styles.container}>
       <Title level={2} className={styles.pageTitle}>Dashboard Administrativa</Title>
 
-      {/* Seção de Estatísticas (sem alteração) */}
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} md={6}>
           <div className={styles.card}><div className={styles.cardIcon}><ClockCircleOutlined /></div><div className={styles.cardContent}><Text className={styles.cardTitle}>Solicitações Pendentes</Text>{renderCardValue(pendingRequests, loadingStats)}</div></div>
@@ -147,7 +145,6 @@ export default function DashboardPage() {
         </Col>
       </Row>
 
-      {/* --- NOVA SEÇÃO DE CONFIGURAÇÕES COM TÍTULO E ESPAÇAMENTO --- */}
       <div className={styles.configSection}>
         <Title level={3} className={styles.sectionTitle}>Configurações do Admin</Title>
         <Row gutter={[24, 24]}>

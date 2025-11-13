@@ -25,7 +25,7 @@ interface LessonFormValues {
   urlVideo: string;
 }
 
-// Component that uses the hook
+
 function CreateLessonForm() {
   const [form] = Form.useForm();
   const router = useRouter();
@@ -128,7 +128,7 @@ function CreateLessonForm() {
   );
 }
 
-// Main page component
+
 export default function CriarAulaPage() {
   return (
     <div className={styles.container}>

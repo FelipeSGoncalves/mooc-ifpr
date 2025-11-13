@@ -45,12 +45,10 @@ export default function SolicitacoesPage() {
     fetchRequests(filterStatus);
   }, [fetchRequests, filterStatus]);
 
-  // --- LÓGICA CORRIGIDA ---
   const handleApprove = async (request: CertificateRequest) => {
     try {
       await updateCertificateRequestStatus(request.id, 'aprovado');
       message.success(`Solicitação de "${request.student.fullName}" aprovada!`);
-      // Remove o item da lista localmente para uma resposta visual imediata
       setRequests(prev => prev.filter(r => r.id !== request.id));
     } catch (error) {
       const errorMessage = error instanceof ApiError ? error.message : "Ocorreu um erro.";
@@ -79,7 +77,6 @@ export default function SolicitacoesPage() {
         try {
           await updateCertificateRequestStatus(request.id, 'reprovado', rejectionReason);
           message.success(`Solicitação reprovada com sucesso!`);
-          // Remove o item da lista localmente
           setRequests(prev => prev.filter(r => r.id !== request.id));
         } catch (error) {
           const errorMessage = error instanceof ApiError ? error.message : "Ocorreu um erro.";
@@ -124,7 +121,6 @@ export default function SolicitacoesPage() {
       key: 'acoes',
       render: (_: unknown, record: CertificateRequest) => (
         <Space size="middle">
-          {/* Mostra as ações apenas se o status for 'Em Análise' */}
           {record.status === 'analise' && (
             <>
               <Button type="primary" icon={<CheckCircleOutlined />} onClick={() => handleApprove(record)}>

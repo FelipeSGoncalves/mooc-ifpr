@@ -9,7 +9,7 @@ import {
   List,
   Card,
   Button,
-  Input, // Importando o Input para a busca
+  Input, 
 } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import Image from "next/image";
@@ -23,7 +23,7 @@ import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
 const { Title } = Typography;
 const { Search } = Input;
 
-// Interface para os dados do curso que virão da API
+
 interface CertificateCourse {
   enrollmentId: number;
   cursoId: number;
@@ -33,9 +33,7 @@ interface CertificateCourse {
 
 export default function CertificadosPage() {
   const { message } = App.useApp();
-  // Estado para guardar todos os cursos concluídos vindos da API
   const [allCompletedCourses, setAllCompletedCourses] = useState<CertificateCourse[]>([]);
-  // Estado para os cursos que serão de fato exibidos na tela (após o filtro)
   const [filteredCourses, setFilteredCourses] = useState<CertificateCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
@@ -45,7 +43,6 @@ export default function CertificadosPage() {
     const fetchCompletedCourses = async () => {
       setLoading(true);
       try {
-        // Busca apenas os cursos marcados como "concluídos"
         const data = await getMyCourses(undefined, true, "desc");
         setAllCompletedCourses(data.conteudo || []);
         setFilteredCourses(data.conteudo || []);
@@ -59,7 +56,6 @@ export default function CertificadosPage() {
     fetchCompletedCourses();
   }, [message]);
   
-  // Efeito que filtra a lista de cursos sempre que o texto da busca muda
   useEffect(() => {
     const filtered = allCompletedCourses.filter(course =>
       course.nome.toLowerCase().includes(searchTerm.toLowerCase())

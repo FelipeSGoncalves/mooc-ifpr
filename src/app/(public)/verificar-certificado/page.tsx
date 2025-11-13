@@ -27,9 +27,8 @@ export default function VerificarCertificado() {
     setVerificationCode("");
   };
   
-  // --- FUNÇÃO CORRIGIDA ---
+
   const handleVerifyByFile = async () => {
-    // A verificação agora é mais simples: apenas checa se há um arquivo na lista.
     if (fileList.length === 0) {
       message.warning("Por favor, selecione um arquivo PDF para verificar.");
       return;
@@ -50,7 +49,6 @@ export default function VerificarCertificado() {
       setIsVerifying(false);
     }
   };
-  // --- FIM DA CORREÇÃO ---
 
   const handleVerifyByCode = async () => {
     if (!verificationCode.trim()) {

@@ -3,7 +3,7 @@
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FC } from "react"; // Removido o 'useEffect' dos imports
+import { FC } from "react";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 
 import criarCursoIcon from "@/assets/criar_curso.png";
@@ -11,6 +11,7 @@ import cursosIcon from "@/assets/catalogo_cursos_alunos.png";
 import dashboardIcon from "@/assets/dashboard_adm.png";
 import solicitacoesIcon from "@/assets/solicitacoes_adm.png";
 import userIcon from "@/assets/icon_perfil.png";
+import botaoSair from "@/assets/botao-sair.png";
 import logoImage from "@/assets/logo_mooc.png";
 
 import styles from "./Sidebar.module.css";
@@ -37,7 +38,6 @@ interface SidebarProps {
 const SidebarProtected: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
   const pathname = usePathname();
 
-  // O BLOCO 'useEffect' FOI REMOVIDO DAQUI
 
   return (
     <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ""}`}>
@@ -85,10 +85,10 @@ const SidebarProtected: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
         </div>
         <button
             className={styles.collapseButton}
-            onClick={() => logout()} // 2. Adicionar a chamada de logout aqui
+            onClick={() => logout()}
         >
             <span className={styles.icon}>
-                <ArrowLeftOutlined /> {/* Ou um ícone de logout se preferir */}
+              <Image src={botaoSair} alt="User profile icon" width={24} height={24} />
             </span>
             <span className={styles.navText}>Sair</span>
         </button>

@@ -38,6 +38,37 @@ interface DecodedToken {
   role: "ADMIN" | "STUDENT";
 }
 
+const sanitizeCPF = (value: string) => value.replace(/\D/g, "");
+
+const isValidCPF = (cpf: string) => {
+  const digits = sanitizeCPF(cpf);
+
+  if (digits.length !== 11) {
+    return false;
+  }
+
+  if (/^([0-9])\1+$/.test(digits)) {
+    return false;
+  }
+
+  const calculateDigit = (length: number) => {
+    let sum = 0;
+    for (let i = 0; i < length; i += 1) {
+      sum += Number(digits[i]) * (length + 1 - i);
+    }
+
+    const mod = (sum * 10) % 11;
+    return mod === 10 ? 0 : mod;
+  };
+
+  const firstDigit = calculateDigit(9);
+  const secondDigit = calculateDigit(10);
+
+  return (
+    firstDigit === Number(digits[9]) && secondDigit === Number(digits[10])
+  );
+};
+
 const RegisterForm: React.FC = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -53,7 +84,7 @@ const RegisterForm: React.FC = () => {
     try {
       const payload = {
         fullName: values.fullName,
-        cpf: values.cpf.replace(/\D/g, ""),
+        cpf: sanitizeCPF(values.cpf),
         birthDate: values.birthDate.format("YYYY-MM-DD"),
         email: values.email,
         password: values.password,
@@ -138,14 +169,22 @@ const RegisterForm: React.FC = () => {
                   return Promise.resolve();
                 }
 
-                const digits = String(value).replace(/\D/g, "");
-                if (digits.length === 11) {
-                  return Promise.resolve();
+                const digits = sanitizeCPF(value);
+                if (digits.length !== 11) {
+                  return Promise.reject(
+                    new Error("O CPF deve conter 11 dígitos numéricos.")
+                  );
                 }
 
-                return Promise.reject(
-                  new Error("O CPF deve conter 11 dígitos numéricos.")
-                );
+                if (!isValidCPF(digits)) {
+                  return Promise.reject(
+                    new Error(
+                      "O CPF informado é inválido. Verifique os dígitos finais."
+                    )
+                  );
+                }
+
+                return Promise.resolve();
               },
             }),
           ]}

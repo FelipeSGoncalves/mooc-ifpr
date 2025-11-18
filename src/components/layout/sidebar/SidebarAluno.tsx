@@ -6,15 +6,16 @@ import { usePathname } from "next/navigation";
 import { FC } from "react";
 import { ArrowLeftOutlined, ArrowRightOutlined } from "@ant-design/icons";
 
-// 1. Importar os ícones corretos para o aluno
-import dashboardIcon from "@/assets/dashboard_adm.png"; // Reutilizando o de admin
+
+import dashboardIcon from "@/assets/dashboard_adm.png"; 
 import catalogoIcon from "@/assets/catalogo_cursos_alunos.png";
 import meusCursosIcon from "@/assets/meus_cursos_alunos.png";
 import certificadosIcon from "@/assets/certificados_alunos.png";
 import userIcon from "@/assets/icon_perfil.png";
+import botaoSair from "@/assets/botao-sair.png";
 import logoImage from "@/assets/logo_mooc.png";
 
-// 2. Usar o CSS genérico que você já tem para manter o estilo
+
 import styles from "./Sidebar.module.css"; 
 
 import { logout } from '@/services/authService';
@@ -25,10 +26,9 @@ type NavItem = {
   path: string;
 };
 
-// 3. Definir os itens de navegação do Aluno, conforme a imagem
+
 const navItems: NavItem[] = [
   { name: "Dashboard", icon: dashboardIcon, path: "/aluno/dashboard" },
-  // CORREÇÃO: Alterado de '/aluno/catalogo' para '/aluno/cursos'
   { name: "Catálogo Cursos", icon: catalogoIcon, path: "/aluno/cursos" },
   { name: "Meus cursos", icon: meusCursosIcon, path: "/aluno/meus-cursos" },
   { name: "Certificados", icon: certificadosIcon, path: "/aluno/certificados" },
@@ -89,12 +89,11 @@ const SidebarAluno: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
           </Link>
         </div>
         <button
-            className={styles.profileButton} // Reutilizando um estilo
+            className={styles.profileButton} 
             onClick={() => logout()}
         >
             <span className={styles.icon}>
-                {/* Você pode usar um ícone específico de logout aqui */}
-                <ArrowLeftOutlined /> 
+              <Image src={botaoSair} alt="User profile icon" width={24} height={24} />
             </span>
             <span className={styles.navText}>Sair</span>
         </button>

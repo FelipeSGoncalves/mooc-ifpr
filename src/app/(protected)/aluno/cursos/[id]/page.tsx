@@ -53,15 +53,36 @@ export default function AlunoCursoPage() {
     fetchCourseDetails();
   }, [id, message, router]);
 
-  const handleEnroll = async () => {
+ const handleEnroll = async () => {
     if (!user || !course) return;
+    
     setActionLoading(true);
     try {
-      await enrollInCourse(course.id);
+      // 1. Faz a requisição e pega os dados da nova matrícula
+      const enrollmentData = await enrollInCourse(course.id);
+      
       message.success("Inscrição realizada com sucesso!");
-      fetchCourseDetails();
+
+      // 2. ATUALIZAÇÃO OTIMISTA: Atualiza o estado localmente sem recarregar a tela inteira
+      setCourse((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          inscricaoInfo: {
+            inscricaoId: enrollmentData.id,
+            estaInscrito: true,
+            concluido: false,
+            inscritoEm: enrollmentData.criadoEm,
+            concluidoEm: null,
+            // Mantém os contadores atuais
+            totalAulas: prev.aulas.length,
+            aulasConcluidas: 0,
+          }
+        };
+      });
+
     } catch (error) {
-      message.error("Falha ao se inscrever. Você já pode estar matriculado.");
+      message.error("Falha ao se inscrever. Tente novamente.");
     } finally {
       setActionLoading(false);
     }
@@ -83,14 +104,24 @@ export default function AlunoCursoPage() {
 
   const handleCancelEnrollment = async () => {
     if (!course || !course.inscricaoInfo?.inscricaoId) return;
+    
     setActionLoading(true);
     try {
       await cancelEnrollment(course.inscricaoInfo.inscricaoId);
       message.success("Inscrição cancelada com sucesso!");
-      // Redireciona para a lista de cursos após o cancelamento
-      router.push("/aluno/meus-cursos"); 
+      
+      // Em vez de redirecionar e confundir o usuário, apenas atualizamos o estado para "Não inscrito"
+      // Assim ele continua na página e pode se inscrever de novo se quiser
+      setCourse((prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          inscricaoInfo: undefined // Remove as informações de inscrição
+        };
+      });
+
     } catch (error) {
-      const errorMessage = error instanceof ApiError ? error.message : "Ocorreu um erro desconhecido ao cancelar a inscrição.";
+      const errorMessage = error instanceof ApiError ? error.message : "Ocorreu um erro ao cancelar.";
       message.error(errorMessage);
     } finally {
       setActionLoading(false);

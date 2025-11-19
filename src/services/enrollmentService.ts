@@ -56,11 +56,15 @@ export async function enrollInCourse(courseId: number | string) {
     throw new ApiError("User not authenticated", 401);
   }
 
-  return apiRequest<void>("/enrollments", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: JSON.stringify({ cursoId: courseId }),
-  });
+  // Agora tipamos o retorno para aproveitar o ID da matrícula que o back devolve
+  return apiRequest<{ id: number; concluido: boolean; criadoEm: string }>(
+    "/enrollments", 
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ cursoId: courseId }),
+    }
+  );
 }
 
 /**

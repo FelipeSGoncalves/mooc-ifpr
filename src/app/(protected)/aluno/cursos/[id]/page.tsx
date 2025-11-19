@@ -11,11 +11,13 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService";
-import { enrollInCourse } from "@/services/enrollmentService";
+import { enrollInCourse, cancelEnrollment } from "@/services/enrollmentService"; 
 import { generateCertificate } from "@/services/certificateService";
 import fallbackImage from "@/assets/mooc.jpeg";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiError } from "@/services/api";
+
+
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -79,6 +81,22 @@ export default function AlunoCursoPage() {
     }
   };
 
+  const handleCancelEnrollment = async () => {
+    if (!course || !course.inscricaoInfo?.inscricaoId) return;
+    setActionLoading(true);
+    try {
+      await cancelEnrollment(course.inscricaoInfo.inscricaoId);
+      message.success("Inscrição cancelada com sucesso!");
+      // Redireciona para a lista de cursos após o cancelamento
+      router.push("/aluno/meus-cursos"); 
+    } catch (error) {
+      const errorMessage = error instanceof ApiError ? error.message : "Ocorreu um erro desconhecido ao cancelar a inscrição.";
+      message.error(errorMessage);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const renderActionButtons = () => {
     // Se não estiver inscrito
     if (!course || !course.inscricaoInfo?.estaInscrito) {
@@ -133,7 +151,12 @@ export default function AlunoCursoPage() {
             Continuar Assistindo
           </Button>
         </Link>
-        <Button size="large" danger disabled title="Função a ser implementada">
+        <Button 
+          size="large" 
+          danger 
+          onClick={handleCancelEnrollment} // Adicionado o handler
+          loading={actionLoading} // Adicionado o loading
+        >
           Cancelar Inscrição
         </Button>
       </Space>

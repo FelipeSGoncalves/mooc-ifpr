@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react";
 import {
-  Typography, Button, Row, Col, List, Spin, Empty, App, Space, Tag, Breadcrumb
+  Typography, Button, Row, Col, List, Spin, Empty, App, Space, Tag, Breadcrumb, Popconfirm
 } from "antd";
 import { 
-    EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, DeleteOutlined, MenuOutlined
+  EditOutlined, PlusOutlined, EyeOutlined, EyeInvisibleOutlined, DeleteOutlined, MenuOutlined
 } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { deleteLesson } from "@/services/lessonService";
 import styles from "./ApresentacaoCursoPage.module.css";
 import { parseCookies } from 'nookies';
 
@@ -33,7 +34,17 @@ const SortableLesson = ({ lesson, courseId, onDelete }: { lesson: LessonSummary;
                 <Link key="edit" href={`/adm/cursos/${courseId}/aula/${lesson.id}/editar`} passHref>
                   <Button type="link" icon={<EditOutlined />} />
                 </Link>,
-                <Button key="delete" type="link" danger icon={<DeleteOutlined />} onClick={() => onDelete(lesson.id)} />,
+                // Alteração aqui: Envolvendo o botão original com Popconfirm
+                <Popconfirm
+                    key="delete"
+                    title="Excluir Aula"
+                    description="Tem certeza de que deseja excluir esta aula?"
+                    onConfirm={() => onDelete(lesson.id)}
+                    okText="Sim"
+                    cancelText="Não"
+                >
+                    <Button type="link" danger icon={<DeleteOutlined />} />
+                </Popconfirm>,
                 <Button key="drag" type="text" {...attributes} {...listeners} icon={<MenuOutlined />} className={styles.dragHandle} />
             ]}
         >
@@ -43,7 +54,7 @@ const SortableLesson = ({ lesson, courseId, onDelete }: { lesson: LessonSummary;
 };
 
 export default function ApresentacaoCursoPage() {
-  const { message, modal } = App.useApp();
+  const { message } = App.useApp();
   const [course, setCourse] = useState<CourseDetails | null>(null);
   const [lessons, setLessons] = useState<LessonSummary[]>([]);
   const [loading, setLoading] = useState(true);
@@ -86,15 +97,18 @@ export default function ApresentacaoCursoPage() {
     }
   };
 
-  const handleDeleteLesson = (lessonId: number) => {
-    modal.confirm({
-      title: "Tem certeza que quer deletar esta aula?",
-      content: "Esta ação não pode ser desfeita. (Funcionalidade de deletar ainda não implementada no backend).",
-      okText: "Sim, deletar",
-      okType: "danger",
-      cancelText: "Cancelar",
-      onOk: async () => { message.info("Funcionalidade de deletar a ser implementada."); }
-    });
+  const handleDeleteLesson = async (lessonId: number) => {
+    if (!course || !course.id) return;
+
+    try {
+      await deleteLesson(course.id, lessonId);
+      message.success("Aula excluída com sucesso.");
+      // Atualiza o estado local removendo a aula excluída da lista
+      setLessons((prevLessons) => prevLessons.filter((lesson) => lesson.id !== lessonId));
+    } catch (error) {
+      console.error(error);
+      message.error("Falha ao excluir a aula. Tente novamente.");
+    }
   };
   
   const handleSaveChanges = async () => {

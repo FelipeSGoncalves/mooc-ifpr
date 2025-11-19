@@ -82,3 +82,16 @@ export async function getLessonsByCourse(courseId: string | number): Promise<Les
     headers: { Authorization: `Bearer ${token}` },
   });
 }
+
+export async function deleteLesson(courseId: number | string, lessonId: number | string) {
+  const token = parseCookies().jwt_token;
+  if (!token) {
+    throw new ApiError("Usuário não autenticado", 401);
+  }
+
+  // Chama o endpoint DELETE /courses/{courseId}/lessons/{lessonId}
+  return apiRequest<void>(`/courses/${courseId}/lessons/${lessonId}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

@@ -21,6 +21,39 @@ export interface StudentCourseSummary {
   areaConhecimento: { id: number; nome: string };
 }
 
+export interface CompletedCourse {
+  enrollmentId: number;
+  cursoId: number;
+  nome: string;
+  minuatura: string | null; // Backend envia como 'minuatura'
+  cargaHoraria: number;
+  statusCertificado: string;
+  statusCertificadoDescricao: string;
+  soliciftacaoCertificadoId: string; // Backend envia como 'soliciftacao...'
+  campus: { id: number; nome: string };
+  areaConhecimento: { id: number; nome: string };
+}
+
+
+export async function getCoursesWithCertificateStatus(
+  status?: 'aprovado' | 'reprovado' | 'analise',
+  direction: "asc" | "desc" = "desc"
+) {
+  const token = parseCookies().jwt_token;
+  if (!token) {
+    throw new ApiError("Usuário não autenticado", 401);
+  }
+
+  const params = new URLSearchParams();
+  if (status) params.append("status", status);
+  params.append("direction", direction);
+  params.append("size", "100");
+
+  return apiRequest<PaginatedResponse<CompletedCourse>>(`/enrollments/courses-with-certificate-status?${params.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}
+
 export async function getMyCourses(
   searchTerm?: string,
   completed?: boolean | null,
@@ -76,9 +109,6 @@ export async function cancelEnrollment(enrollmentId: number | string) {
   if (!token) {
     throw new ApiError("User not authenticated", 401);
   }
-
-  // Note: Backend endpoint for DELETE might not exist yet.
-  // This is prepared for when `DELETE /enrollments/{id}` is implemented.
   return apiRequest<void>(`/enrollments/${enrollmentId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },

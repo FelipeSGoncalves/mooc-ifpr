@@ -15,7 +15,8 @@ import { DownloadOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import styles from "./CertificadosPage.module.css";
 
-import { getMyCourses } from "@/services/enrollmentService";
+// Atualizamos a importação para usar a nova função e tipo
+import { getCoursesWithCertificateStatus, CompletedCourse } from "@/services/enrollmentService";
 import { generateCertificate } from "@/services/certificateService";
 import { ApiError } from "@/services/api";
 import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
@@ -23,18 +24,11 @@ import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
 const { Title } = Typography;
 const { Search } = Input;
 
-
-interface CertificateCourse {
-  enrollmentId: number;
-  cursoId: number;
-  nome: string;
-  miniatura: string | null;
-}
-
 export default function CertificadosPage() {
   const { message } = App.useApp();
-  const [allCompletedCourses, setAllCompletedCourses] = useState<CertificateCourse[]>([]);
-  const [filteredCourses, setFilteredCourses] = useState<CertificateCourse[]>([]);
+  // Tipagem atualizada para o novo DTO
+  const [allCompletedCourses, setAllCompletedCourses] = useState<CompletedCourse[]>([]);
+  const [filteredCourses, setFilteredCourses] = useState<CompletedCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,7 +37,8 @@ export default function CertificadosPage() {
     const fetchCompletedCourses = async () => {
       setLoading(true);
       try {
-        const data = await getMyCourses(undefined, true, "desc");
+        // Chamamos a nova função passando o status 'aprovado'
+        const data = await getCoursesWithCertificateStatus('aprovado');
         setAllCompletedCourses(data.conteudo || []);
         setFilteredCourses(data.conteudo || []);
       } catch (error) {
@@ -110,7 +105,8 @@ export default function CertificadosPage() {
               cover={
                 <Image
                   alt={course.nome}
-                  src={course.miniatura || fallbackImage}
+                  // Atenção: Usando 'minuatura' conforme vem do backend (typo)
+                  src={course.minuatura || fallbackImage}
                   width={300}
                   height={170}
                   style={{ objectFit: "cover" }}
@@ -119,6 +115,7 @@ export default function CertificadosPage() {
             >
               <Card.Meta 
                 title={course.nome}
+                description={`${course.cargaHoraria} horas • Concluído`}
               />
               <Button
                 type="primary"
@@ -126,6 +123,7 @@ export default function CertificadosPage() {
                 className={styles.downloadButton}
                 onClick={() => handleDownload(course.enrollmentId, course.nome)}
                 loading={downloading === course.enrollmentId}
+                style={{ marginTop: 16 }}
               >
                 Baixar PDF
               </Button>
@@ -133,7 +131,7 @@ export default function CertificadosPage() {
           </List.Item>
         )}
         locale={{
-          emptyText: <Empty description="Nenhum certificado disponível com esse nome." />,
+          emptyText: <Empty description="Você ainda não possui certificados aprovados." />,
         }}
       />
     </div>

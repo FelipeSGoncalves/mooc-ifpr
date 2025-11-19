@@ -11,13 +11,12 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService";
-import { enrollInCourse, cancelEnrollment } from "@/services/enrollmentService"; 
+// REMOVIDO: cancelEnrollment da importação
+import { enrollInCourse } from "@/services/enrollmentService"; 
 import { generateCertificate } from "@/services/certificateService";
 import fallbackImage from "@/assets/mooc.jpeg";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiError } from "@/services/api";
-
-
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -53,17 +52,14 @@ export default function AlunoCursoPage() {
     fetchCourseDetails();
   }, [id, message, router]);
 
- const handleEnroll = async () => {
+  const handleEnroll = async () => {
     if (!user || !course) return;
     
     setActionLoading(true);
     try {
-      // 1. Faz a requisição e pega os dados da nova matrícula
       const enrollmentData = await enrollInCourse(course.id);
-      
       message.success("Inscrição realizada com sucesso!");
 
-      // 2. ATUALIZAÇÃO OTIMISTA: Atualiza o estado localmente sem recarregar a tela inteira
       setCourse((prev) => {
         if (!prev) return null;
         return {
@@ -74,7 +70,6 @@ export default function AlunoCursoPage() {
             concluido: false,
             inscritoEm: enrollmentData.criadoEm,
             concluidoEm: null,
-            // Mantém os contadores atuais
             totalAulas: prev.aulas.length,
             aulasConcluidas: 0,
           }
@@ -102,31 +97,7 @@ export default function AlunoCursoPage() {
     }
   };
 
-  const handleCancelEnrollment = async () => {
-    if (!course || !course.inscricaoInfo?.inscricaoId) return;
-    
-    setActionLoading(true);
-    try {
-      await cancelEnrollment(course.inscricaoInfo.inscricaoId);
-      message.success("Inscrição cancelada com sucesso!");
-      
-      // Em vez de redirecionar e confundir o usuário, apenas atualizamos o estado para "Não inscrito"
-      // Assim ele continua na página e pode se inscrever de novo se quiser
-      setCourse((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          inscricaoInfo: undefined // Remove as informações de inscrição
-        };
-      });
-
-    } catch (error) {
-      const errorMessage = error instanceof ApiError ? error.message : "Ocorreu um erro ao cancelar.";
-      message.error(errorMessage);
-    } finally {
-      setActionLoading(false);
-    }
-  };
+  // REMOVIDO: Função handleCancelEnrollment
 
   const renderActionButtons = () => {
     // Se não estiver inscrito
@@ -175,22 +146,13 @@ export default function AlunoCursoPage() {
       ? `/aluno/cursos/${id}/aula/${firstUnwatchedLesson.id}`
       : (course.aulas.length > 0 ? `/aluno/cursos/${id}/aula/${course.aulas[0].id}` : '#');
 
+    // REMOVIDO: Botão de cancelar inscrição. Agora retorna apenas o "Continuar Assistindo".
     return (
-      <Space>
-        <Link href={continueLink}>
-          <Button type="primary" size="large" icon={<PlayCircleOutlined />}>
-            Continuar Assistindo
-          </Button>
-        </Link>
-        <Button 
-          size="large" 
-          danger 
-          onClick={handleCancelEnrollment} // Adicionado o handler
-          loading={actionLoading} // Adicionado o loading
-        >
-          Cancelar Inscrição
+      <Link href={continueLink} style={{ width: '100%' }}>
+        <Button type="primary" size="large" icon={<PlayCircleOutlined />} block>
+          Continuar Assistindo
         </Button>
-      </Space>
+      </Link>
     );
   };
 
@@ -255,13 +217,11 @@ export default function AlunoCursoPage() {
                   title={
                     course.inscricaoInfo?.estaInscrito ? (
                       <Link href={`/aluno/cursos/${id}/aula/${aula.id}`}>
-                         {/* ALTERAÇÃO AQUI: Adicionado aula.ordemAula */}
-                         {aula.ordemAula}. {aula.titulo}
+                          {aula.ordemAula}. {aula.titulo}
                       </Link>
                     ) : (
                       <Text>
-                         {/* ALTERAÇÃO AQUI: Adicionado aula.ordemAula */}
-                         {aula.ordemAula}. {aula.titulo}
+                          {aula.ordemAula}. {aula.titulo}
                       </Text>
                     )
                   }

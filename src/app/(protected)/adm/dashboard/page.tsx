@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-  Typography, Spin, App, Row, Col, Card, List, Input, Button, Tabs, Switch, Tag
+  Typography, Spin, App, Row, Col, Card, List, Input, Button, Tabs, Switch, Tag, Modal, Form
 } from "antd";
 import {
   UserOutlined, CheckCircleOutlined, ClockCircleOutlined, PlusOutlined, EditOutlined
@@ -12,28 +12,43 @@ import styles from "./DashboardPage.module.css";
 import { apiRequest, ApiError } from "@/services/api";
 import { parseCookies } from "nookies";
 import {
-  getKnowledgeAreas, createKnowledgeArea, getCampuses, createCampus, ConfigItem,
+  getKnowledgeAreas, createKnowledgeArea, updateKnowledgeArea,
+  getCampuses, createCampus, updateCampus,
+  ConfigItem, getAutoApproveStatus, updateAutoApproveStatus
 } from "@/services/configurationService";
+import { getStudentCount } from "@/services/userService";
 
 const { Title, Text } = Typography;
 
-const ManagementList = ({ fetchItems, createItem, itemType }: {
+// Componente reutilizável para gerenciar Listas (Campi e Áreas) com EDIÇÃO
+const ManagementList = ({ fetchItems, createItem, updateItem, itemType }: {
   fetchItems: () => Promise<{ conteudo: ConfigItem[] }>;
   createItem: (name: string) => Promise<ConfigItem>;
+  updateItem: (id: number, name: string, visible: boolean) => Promise<ConfigItem>;
   itemType: string;
 }) => {
   const { message } = App.useApp();
   const [items, setItems] = useState<ConfigItem[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Estado para Adicionar
   const [newItemName, setNewItemName] = useState("");
   const [submitLoading, setSubmitLoading] = useState(false);
+
+  // Estado para Editar (Modal)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<ConfigItem | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [form] = Form.useForm(); // Formulário do AntD para gerenciar os campos no modal
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const data = await fetchItems();
-      setItems(data.conteudo || []);
+      const sorted = (data.conteudo || []).sort((a, b) => a.id - b.id);
+      setItems(sorted);
     } catch (error) {
+      console.error(error);
       message.error(`Não foi possível carregar ${itemType}.`);
     } finally {
       setLoading(false);
@@ -44,6 +59,7 @@ const ManagementList = ({ fetchItems, createItem, itemType }: {
     fetchData();
   }, []);
 
+  // Adicionar novo item
   const handleAddItem = async () => {
     if (!newItemName.trim()) {
       message.warning(`O nome não pode ser vazio.`);
@@ -63,6 +79,49 @@ const ManagementList = ({ fetchItems, createItem, itemType }: {
     }
   };
 
+  // Abrir Modal de Edição
+  const showEditModal = (item: ConfigItem) => {
+    setEditingItem(item);
+    // Preenche o formulário com os dados atuais
+    form.setFieldsValue({
+      name: item.name,
+      visible: item.visible
+    });
+    setIsModalOpen(true);
+  };
+
+  // Salvar Edição
+  const handleEditSubmit = async () => {
+    try {
+      const values = await form.validateFields(); // Valida e pega os valores
+      setEditLoading(true);
+
+      if (editingItem) {
+        // Chama o endpoint PUT para atualizar nome e visibilidade
+        await updateItem(editingItem.id, values.name, values.visible);
+        
+        message.success(`${itemType.slice(0, -1)} atualizado com sucesso!`);
+        
+        // Atualiza a lista localmente
+        setItems(prev => prev.map(i => 
+          i.id === editingItem.id 
+            ? { ...i, name: values.name, visible: values.visible } 
+            : i
+        ));
+
+        setIsModalOpen(false);
+        setEditingItem(null);
+      }
+    } catch (error) {
+        // Se não for erro de validação do form
+        if (!(error as any).errorFields) {
+            message.error("Erro ao salvar alterações.");
+        }
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
   return (
     <div>
       <div className={styles.addForm}>
@@ -77,56 +136,162 @@ const ManagementList = ({ fetchItems, createItem, itemType }: {
           Adicionar
         </Button>
       </div>
+
       <List
         loading={loading}
         dataSource={items}
         renderItem={(item) => (
-          <List.Item actions={[ <Button key="edit" type="text" icon={<EditOutlined />} disabled>Editar</Button> ]}>
+          <List.Item actions={[
+            <Button 
+                key="edit" 
+                type="text" // Botão discreto
+                icon={<EditOutlined />} 
+                onClick={() => showEditModal(item)}
+            >
+                Editar
+            </Button>
+          ]}>
             <List.Item.Meta
               title={item.name}
-              description={<Tag color={item.visible ? 'green' : 'red'}>{item.visible ? 'Visível' : 'Oculto'}</Tag>}
+              description={
+                <Tag color={item.visible ? 'green' : 'red'}>
+                  {item.visible ? 'Visível' : 'Oculto'}
+                </Tag>
+              }
             />
           </List.Item>
         )}
       />
+
+      {/* Modal de Edição */}
+      <Modal
+        title={`Editar ${itemType.slice(0, -1)}`}
+        open={isModalOpen}
+        onOk={handleEditSubmit}
+        onCancel={() => setIsModalOpen(false)}
+        confirmLoading={editLoading}
+        okText="Salvar"
+        cancelText="Cancelar"
+      >
+        <Form form={form} layout="vertical" name="edit_form">
+            <Form.Item
+                name="name"
+                label="Nome"
+                rules={[{ required: true, message: 'Por favor, insira o nome.' }]}
+            >
+                <Input placeholder="Nome" />
+            </Form.Item>
+
+            <Form.Item
+                name="visible"
+                label="Status"
+                valuePropName="checked" // O Switch usa 'checked' em vez de 'value'
+            >
+                <Switch checkedChildren="Visível" unCheckedChildren="Oculto" />
+            </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
 
-
 export default function DashboardPage() {
   const { message } = App.useApp();
+  
   const [pendingRequests, setPendingRequests] = useState<number | null>(null);
-  const [loadingStats, setLoadingStats] = useState(true);
+  const [studentsCount, setStudentsCount] = useState<number | null>(null);
+  
+  const [loadingRequests, setLoadingRequests] = useState(true);
+  const [loadingStudents, setLoadingStudents] = useState(true);
+
+  const [autoApproveEnabled, setAutoApproveEnabled] = useState(false);
+  const [autoApproveLoading, setAutoApproveLoading] = useState(false);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
-      setLoadingStats(true);
+      const token = parseCookies().jwt_token;
+      if (!token) return;
+
+      // 1. Configurações (Auto Aprovação)
       try {
-        const token = parseCookies().jwt_token;
-        if (!token) throw new ApiError("Usuário não autenticado", 401);
-        const count = await apiRequest<number>("/certificate-requests/count/pending", {
+        const config = await getAutoApproveStatus();
+        setAutoApproveEnabled(config.enabled);
+      } catch (error) {
+        console.error("Erro ao buscar config:", error);
+      }
+
+      // 2. Solicitações Pendentes
+      setLoadingRequests(true);
+      try {
+        const requestsCount = await apiRequest<number>("/certificate-requests/count/pending", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setPendingRequests(count);
+        setPendingRequests(requestsCount);
       } catch (error) {
-        message.error("Não foi possível carregar o número de solicitações pendentes.");
-        setPendingRequests(0);
+        console.error("Erro requests:", error);
       } finally {
-        setLoadingStats(false);
+        setLoadingRequests(false);
+      }
+
+      // 3. Contagem de Alunos
+      setLoadingStudents(true);
+      try {
+        const count = await getStudentCount();
+        setStudentsCount(count);
+      } catch (error) {
+        console.error("Erro student count:", error);
+      } finally {
+        setLoadingStudents(false);
       }
     };
+    
     fetchDashboardData();
-  }, [message]);
+  }, []);
+
+  const handleAutoApproveChange = async (checked: boolean) => {
+    setAutoApproveLoading(true);
+    try {
+        await updateAutoApproveStatus(checked);
+        setAutoApproveEnabled(checked);
+        message.success(`Aprovação automática ${checked ? 'ATIVADA' : 'DESATIVADA'}.`);
+        
+        if (checked) {
+            setPendingRequests(0);
+        }
+    } catch (error) {
+        message.error("Erro ao atualizar configuração.");
+        setAutoApproveEnabled(!checked);
+    } finally {
+        setAutoApproveLoading(false);
+    }
+  };
 
   const renderCardValue = (value: number | null, loading: boolean) => {
     if (loading) return <Spin />;
-    return <Text className={styles.cardValue}>{value ?? '...'}</Text>;
+    return <Text className={styles.cardValue}>{value ?? '--'}</Text>;
   };
 
   const tabItems = [
-    { key: '1', label: 'Áreas de Conhecimento', children: <ManagementList fetchItems={getKnowledgeAreas} createItem={createKnowledgeArea} itemType="Áreas de Conhecimento" /> },
-    { key: '2', label: 'Campi', children: <ManagementList fetchItems={getCampuses} createItem={createCampus} itemType="Campi" /> },
+    { 
+        key: '1', 
+        label: 'Áreas de Conhecimento', 
+        children: <ManagementList 
+                    fetchItems={getKnowledgeAreas} 
+                    createItem={createKnowledgeArea} 
+                    updateItem={updateKnowledgeArea}
+                    itemType="Áreas de Conhecimento" 
+                  /> 
+    },
+    { 
+        key: '2', 
+        label: 'Campi', 
+        children: <ManagementList 
+                    fetchItems={getCampuses} 
+                    createItem={createCampus}
+                    updateItem={updateCampus} 
+                    itemType="Campi" 
+                  /> 
+    },
   ];
 
   return (
@@ -135,13 +300,31 @@ export default function DashboardPage() {
 
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} md={6}>
-          <div className={styles.card}><div className={styles.cardIcon}><ClockCircleOutlined /></div><div className={styles.cardContent}><Text className={styles.cardTitle}>Solicitações Pendentes</Text>{renderCardValue(pendingRequests, loadingStats)}</div></div>
+          <div className={styles.card}>
+            <div className={styles.cardIcon}><ClockCircleOutlined /></div>
+            <div className={styles.cardContent}>
+                <Text className={styles.cardTitle}>Solicitações Pendentes</Text>
+                {renderCardValue(pendingRequests, loadingRequests)}
+            </div>
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className={styles.card}><div className={styles.cardIcon}><UserOutlined /></div><div className={styles.cardContent}><Text className={styles.cardTitle}>Usuários Cadastrados</Text><Text className={styles.cardValue}>12.345</Text></div></div>
+          <div className={styles.card}>
+            <div className={styles.cardIcon}><UserOutlined /></div>
+            <div className={styles.cardContent}>
+                <Text className={styles.cardTitle}>Alunos Cadastrados</Text>
+                {renderCardValue(studentsCount, loadingStudents)}
+            </div>
+          </div>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <div className={styles.card}><div className={styles.cardIcon}><CheckCircleOutlined /></div><div className={styles.cardContent}><Text className={styles.cardTitle}>Taxa de Conclusão</Text><Text className={styles.cardValue}>68%</Text></div></div>
+          <div className={styles.card}>
+            <div className={styles.cardIcon}><CheckCircleOutlined /></div>
+            <div className={styles.cardContent}>
+                <Text className={styles.cardTitle}>Taxa de Conclusão</Text>
+                <Text className={styles.cardValue}>--</Text>
+            </div>
+          </div>
         </Col>
       </Row>
 
@@ -156,10 +339,18 @@ export default function DashboardPage() {
           <Col xs={24} lg={8}>
             <Card title="Configurações Gerais" style={{ height: '100%' }}>
               <div className={styles.settingItem}>
-                <Text>Aprovação automática de certificados</Text>
-                <Switch disabled />
+                <div style={{display: 'flex', flexDirection: 'column'}}>
+                    <Text strong>Aprovação automática de certificados</Text>
+                    <Text type="secondary" style={{fontSize: '12px'}}>
+                        Se ativo, solicitações serão aprovadas instantaneamente.
+                    </Text>
+                </div>
+                <Switch 
+                    checked={autoApproveEnabled} 
+                    onChange={handleAutoApproveChange}
+                    loading={autoApproveLoading}
+                />
               </div>
-              
             </Card>
           </Col>
         </Row>

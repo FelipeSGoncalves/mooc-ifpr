@@ -76,3 +76,12 @@ export async function validateCertificateByCode(certificateCode: string): Promis
     body: JSON.stringify({ certificateCode }),
   });
 }
+/**
+ * Valida um certificado via URL (GET) usando o código.
+ * Endpoint público.
+ */
+export async function validateCertificateByLink(code: string): Promise<ValidationResponse> {
+  return apiRequest<ValidationResponse>(`/certificates/validate/code/${code}`, {
+    method: 'GET',
+  });
+}

@@ -8,7 +8,7 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 import { getCourses, getKnowledgeAreas, Course, KnowledgeArea } from "@/services/courseService";
-import { useAuth } from "@/hooks/useAuth"; // 1. Importar o hook de autenticação
+import { useAuth } from "@/hooks/useAuth";
 import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
 
 const { Title } = Typography;
@@ -28,21 +28,52 @@ export default function CatalogoCursos() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedArea, setSelectedArea] = useState<number | null>(null);
-  const [sortOption, setSortOption] = useState<"desc" | "asc">("desc");
+  
+  // Estado para controlar a ordenação local
+  const [sortOption, setSortOption] = useState<string>("newest");
 
   useEffect(() => {
     getKnowledgeAreas()
       .then(data => setKnowledgeAreas(data.conteudo || []))
-      .catch(() => message.error("Não foi possível carregar as áreas de conhecimento."));
+      .catch(() => message.error("Não foi possível carregar as áreas."));
   }, [message]);
 
   useEffect(() => {
     setLoading(true);
-    getCourses(searchTerm, selectedArea, sortOption, true)
-      .then(data => setCourses(data.conteudo || []))
+    // Buscamos sempre ordenado por ID decrescente (mais novos) do back
+    getCourses(searchTerm, selectedArea, "desc", true)
+      .then(data => {
+        const lista = data.conteudo || [];
+
+        // --- LÓGICA DE ORDENAÇÃO NO FRONT-END ---
+        switch (sortOption) {
+            case "oldest":
+                lista.sort((a, b) => a.id - b.id);
+                break;
+            case "workload_desc": // Maior carga horária
+                lista.sort((a, b) => b.cargaHoraria - a.cargaHoraria);
+                break;
+            case "workload_asc": // Menor carga horária
+                lista.sort((a, b) => a.cargaHoraria - b.cargaHoraria);
+                break;
+            case "az": // Nome A-Z
+                lista.sort((a, b) => a.nome.localeCompare(b.nome));
+                break;
+            case "za": // Nome Z-A
+                lista.sort((a, b) => b.nome.localeCompare(a.nome));
+                break;
+            case "newest":
+            default:
+                lista.sort((a, b) => b.id - a.id);
+                break;
+        }
+        // ----------------------------------------
+
+        setCourses(lista);
+      })
       .catch(() => message.error("Não foi possível carregar os cursos."))
       .finally(() => setLoading(false));
-  }, [searchTerm, selectedArea, sortOption, message]);
+  }, [searchTerm, selectedArea, sortOption, message]); // sortOption dispara o efeito novamente
 
   return (
     <section className={styles.wrapper}>
@@ -50,17 +81,31 @@ export default function CatalogoCursos() {
         <header className={styles.header}>
           <h1 className={styles.title}>Catálogo de Cursos</h1>
           <p className={styles.subtitle}>
-            Explore os cursos disponíveis no MOOC IFPR. Utilize os filtros para encontrar a
-            formação ideal para o seu momento e inicie uma nova jornada de aprendizado.
+            Explore os cursos disponíveis no MOOC IFPR.
           </p>
         </header>
         <div className={styles.controls}>
           <div className={styles.search}>
-            <Input size="large" placeholder="Pesquisar..." allowClear prefix={<SearchOutlined style={{ color: "rgba(3, 138, 113, 0.6)" }} />} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} aria-label="Pesquisar cursos" />
+            <Input size="large" placeholder="Pesquisar..." allowClear prefix={<SearchOutlined style={{ color: "rgba(3, 138, 113, 0.6)" }} />} value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} />
           </div>
           <div className={styles.filters}>
-            <Select size="large" placeholder="Área" options={knowledgeAreas.map(area => ({ label: area.name, value: area.id }))} allowClear value={selectedArea ?? undefined} onChange={(value) => setSelectedArea(value ?? null)} aria-label="Filtrar por área" />
-            <Select size="large" placeholder="Ordenar" value={sortOption} onChange={(value) => setSortOption(value)} options={[{ label: "Mais Recentes", value: "desc" },{ label: "Mais Antigos", value: "asc" },]} aria-label="Ordenar resultados" />
+            <Select size="large" placeholder="Área" options={knowledgeAreas.map(area => ({ label: area.name, value: area.id }))} allowClear value={selectedArea ?? undefined} onChange={(value) => setSelectedArea(value ?? null)} />
+            
+            {/* SELECT COM NOVAS OPÇÕES */}
+            <Select 
+                size="large" 
+                placeholder="Ordenar" 
+                value={sortOption} 
+                onChange={(value) => setSortOption(value)} 
+                options={[
+                    { label: "Mais Recentes", value: "newest" },
+                    { label: "Mais Antigos", value: "oldest" },
+                    { label: "Maior Carga Horária", value: "workload_desc" },
+                    { label: "Menor Carga Horária", value: "workload_asc" },
+                    { label: "Nome (A-Z)", value: "az" },
+                    { label: "Nome (Z-A)", value: "za" },
+                ]} 
+            />
           </div>
         </div>
 

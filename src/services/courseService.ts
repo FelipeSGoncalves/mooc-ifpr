@@ -126,6 +126,20 @@ export interface CourseUpdatePayload {
 }
 
 
+export async function patchCourseVisibility(id: number | string, visivel: boolean) {
+  const token = parseCookies().jwt_token;
+  if (!token) {
+      throw new ApiError("Usuário não autenticado", 401);
+  }
+
+  // O endpoint retorna o objeto do curso atualizado, igual ao PUT
+  return apiRequest<CourseDetails>(`/courses/${id}`, {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ visivel }),
+  });
+}
+
 /**
  * Busca os detalhes completos de um único curso.
  */

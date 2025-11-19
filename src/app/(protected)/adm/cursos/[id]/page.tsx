@@ -18,7 +18,8 @@ import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEn
 import { arrayMove, SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-import { getCourseDetails, CourseDetails, LessonSummary, updateCourse } from "@/services/courseService";
+// IMPORT ATUALIZADO: Adicionado patchCourseVisibility
+import { getCourseDetails, CourseDetails, LessonSummary, patchCourseVisibility } from "@/services/courseService";
 import { apiRequest } from "@/services/api";
 import fallbackImage from "@/assets/mooc.jpeg";
 
@@ -34,7 +35,6 @@ const SortableLesson = ({ lesson, courseId, onDelete }: { lesson: LessonSummary;
                 <Link key="edit" href={`/adm/cursos/${courseId}/aula/${lesson.id}/editar`} passHref>
                   <Button type="link" icon={<EditOutlined />} />
                 </Link>,
-                // Alteração aqui: Envolvendo o botão original com Popconfirm
                 <Popconfirm
                     key="delete"
                     title="Excluir Aula"
@@ -48,7 +48,8 @@ const SortableLesson = ({ lesson, courseId, onDelete }: { lesson: LessonSummary;
                 <Button key="drag" type="text" {...attributes} {...listeners} icon={<MenuOutlined />} className={styles.dragHandle} />
             ]}
         >
-            <List.Item.Meta title={<Text>{lesson.titulo}</Text>} />
+            {/* ALTERAÇÃO 1: Adicionado lesson.ordemAula antes do título */}
+            <List.Item.Meta title={<Text>{lesson.ordemAula}. {lesson.titulo}</Text>} />
         </List.Item>
     );
 };
@@ -103,7 +104,6 @@ export default function ApresentacaoCursoPage() {
     try {
       await deleteLesson(course.id, lessonId);
       message.success("Aula excluída com sucesso.");
-      // Atualiza o estado local removendo a aula excluída da lista
       setLessons((prevLessons) => prevLessons.filter((lesson) => lesson.id !== lessonId));
     } catch (error) {
       console.error(error);
@@ -135,23 +135,16 @@ export default function ApresentacaoCursoPage() {
     }
   };
 
+  // ALTERAÇÃO 2: Função otimizada usando patchCourseVisibility
   const handleToggleVisibility = async () => {
     if (!course) return;
     
     const newVisibility = !course.visivel;
     const action = newVisibility ? "publicado" : "privado";
+    
     try {
-        const updatePayload = {
-            nome: course.nome,
-            descricao: course.descricao,
-            areaConhecimentoId: course.areaConhecimento.id,
-            campusId: 1,
-            nomeProfessor: course.nomeProfessor,
-            cargaHoraria: course.cargaHoraria,
-            visivel: newVisibility,
-        };
-
-        await updateCourse(course.id, updatePayload);
+        // Agora chamamos apenas o PATCH, sem precisar reenviar todos os dados do curso
+        await patchCourseVisibility(course.id, newVisibility);
 
         setCourse({ ...course, visivel: newVisibility });
         message.success(`Curso tornado ${action} com sucesso!`);

@@ -223,9 +223,15 @@ export default function AlunoCursoPage() {
                 <List.Item.Meta
                   title={
                     course.inscricaoInfo?.estaInscrito ? (
-                      <Link href={`/aluno/cursos/${id}/aula/${aula.id}`}>{aula.titulo}</Link>
+                      <Link href={`/aluno/cursos/${id}/aula/${aula.id}`}>
+                         {/* ALTERAÇÃO AQUI: Adicionado aula.ordemAula */}
+                         {aula.ordemAula}. {aula.titulo}
+                      </Link>
                     ) : (
-                      <Text>{aula.titulo}</Text>
+                      <Text>
+                         {/* ALTERAÇÃO AQUI: Adicionado aula.ordemAula */}
+                         {aula.ordemAula}. {aula.titulo}
+                      </Text>
                     )
                   }
                 />

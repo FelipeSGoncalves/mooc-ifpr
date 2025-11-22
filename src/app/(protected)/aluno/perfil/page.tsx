@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Typography,
   Spin,
@@ -36,7 +36,7 @@ export default function PerfilPage() {
   const [form] = Form.useForm();
 
   // Busca os dados ao carregar a página
-  const fetchUserData = async () => {
+  const fetchUserData = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getCurrentUserDetails();
@@ -47,11 +47,11 @@ export default function PerfilPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [message]);
 
   useEffect(() => {
     fetchUserData();
-  }, []);
+  }, [fetchUserData]);
 
   // Formatação visual do CPF
   const formatCPF = (cpf: string) => {

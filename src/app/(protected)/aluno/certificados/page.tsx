@@ -41,7 +41,7 @@ export default function CertificadosPage() {
         const data = await getCoursesWithCertificateStatus('aprovado');
         setAllCompletedCourses(data.conteudo || []);
         setFilteredCourses(data.conteudo || []);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar seus certificados.");
       } finally {
         setLoading(false);

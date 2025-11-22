@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  Typography, Spin, App, Row, Col, Card, List, Input, Button, Tabs, Switch, Tag, Tooltip, Modal, Form
+  Typography, Spin, App, Row, Col, Card, List, Input, Button, Tabs, Switch, Tag, Modal, Form
 } from "antd";
 import {
-  UserOutlined, CheckCircleOutlined, ClockCircleOutlined, PlusOutlined, EditOutlined, EyeOutlined, EyeInvisibleOutlined
+  UserOutlined, CheckCircleOutlined, ClockCircleOutlined, PlusOutlined, EditOutlined
 } from "@ant-design/icons";
 import styles from "./DashboardPage.module.css";
 
@@ -43,7 +43,7 @@ const ManagementList = ({ fetchItems, createItem, updateItem, itemType }: {
   const [editLoading, setEditLoading] = useState(false);
   const [form] = Form.useForm();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchItems();
@@ -55,11 +55,11 @@ const ManagementList = ({ fetchItems, createItem, updateItem, itemType }: {
     } finally {
       setLoading(false);
     }
-  };
+  }, [fetchItems, itemType, message]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleAddItem = async () => {
     if (!newItemName.trim()) {
@@ -106,7 +106,7 @@ const ManagementList = ({ fetchItems, createItem, updateItem, itemType }: {
         setEditingItem(null);
       }
     } catch (error) {
-        if (!(error as any).errorFields) {
+        if (!(error && typeof error === 'object' && 'errorFields' in error)) {
             message.error("Erro ao salvar alterações.");
         }
     } finally {
@@ -249,7 +249,7 @@ export default function DashboardPage() {
         setAutoApproveEnabled(checked);
         message.success(`Aprovação automática ${checked ? 'ATIVADA' : 'DESATIVADA'}.`);
         if (checked) setPendingRequests(0);
-    } catch (error) {
+    } catch {
         message.error("Erro ao atualizar configuração.");
         setAutoApproveEnabled(!checked);
     } finally {

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
-  Typography, Button, Row, Col, List, Spin, Empty, App, Space, Progress, Breadcrumb, Tooltip
+  Typography, Button, Row, Col, List, Spin, Empty, App, Progress, Breadcrumb, Tooltip
 } from "antd";
 import { PlayCircleOutlined, CheckCircleOutlined, DownloadOutlined, HourglassOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { useParams, useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ export default function AlunoCursoPage() {
   const router = useRouter();
   const id = params.id as string;
 
-  const fetchCourseDetails = async () => {
+  const fetchCourseDetails = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     try {
@@ -40,17 +40,17 @@ export default function AlunoCursoPage() {
         data.aulas.sort((a, b) => a.ordemAula - b.ordemAula);
       }
       setCourse(data);
-    } catch (error) {
+    } catch {
       message.error("Não foi possível carregar os detalhes do curso.");
       router.push("/aluno/cursos");
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, message, router]);
 
   useEffect(() => {
     fetchCourseDetails();
-  }, [id, message, router]);
+  }, [fetchCourseDetails]);
 
   const handleEnroll = async () => {
     if (!user || !course) return;
@@ -76,7 +76,7 @@ export default function AlunoCursoPage() {
         };
       });
 
-    } catch (error) {
+    } catch {
       message.error("Falha ao se inscrever. Tente novamente.");
     } finally {
       setActionLoading(false);

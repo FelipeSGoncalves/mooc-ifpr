@@ -6,7 +6,7 @@ import Link from "next/link";
 import styles from "./FooterPublic.module.css";
 import logoIcon from "./../../../assets/logo_mooc.png";
 
-const { Text, Paragraph, Title } = Typography;
+const { Paragraph, Title } = Typography;
 
 export default function FooterPublic() {
   return (

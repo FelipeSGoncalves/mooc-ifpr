@@ -28,7 +28,7 @@ export default function CatalogoPage() {
       try {
         const data = await getKnowledgeAreas();
         setKnowledgeAreas(data.conteudo || []);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar as áreas.");
       }
     };
@@ -53,7 +53,7 @@ export default function CatalogoPage() {
         }
 
         setCourses(lista);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar os cursos.");
         setCourses([]);
       } finally {

@@ -39,7 +39,7 @@ export default function PublicCoursePage() {
           data.aulas.sort((a, b) => a.ordemAula - b.ordemAula);
         }
         setCourse(data);
-      } catch (error) {
+      } catch {
         message.error("Curso não encontrado ou indisponível.");
         router.push("/catalogo"); // Redireciona para o catálogo se o curso não for público
       } finally {

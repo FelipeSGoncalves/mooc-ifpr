@@ -75,7 +75,7 @@ export default function ApresentacaoCursoPage() {
         const data = await getCourseDetails(id);
         setCourse(data);
         setLessons(data.aulas ? [...data.aulas].sort((a, b) => a.ordemAula - b.ordemAula) : []);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar os detalhes do curso.");
         router.push("/adm/cursos");
       } finally {
@@ -130,7 +130,7 @@ export default function ApresentacaoCursoPage() {
         });
         message.success("Ordem das aulas salva com sucesso!");
         setHasChanges(false);
-    } catch (error) {
+    } catch {
         message.error("Não foi possível salvar as alterações.");
     }
   };
@@ -148,7 +148,7 @@ export default function ApresentacaoCursoPage() {
 
         setCourse({ ...course, visivel: newVisibility });
         message.success(`Curso tornado ${action} com sucesso!`);
-    } catch (error) {
+    } catch {
         message.error("Não foi possível alterar a visibilidade do curso.");
     }
   };

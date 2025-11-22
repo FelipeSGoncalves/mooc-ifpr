@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "./LoginForm.module.css";
 import { login } from "@/services/authService";
+import { ApiError } from "@/services/api";
 import { setCookie } from 'nookies';
 import { jwtDecode } from 'jwt-decode';
 
@@ -43,11 +44,21 @@ const LoginForm: React.FC = () => {
 
     } catch (error) {
       console.error("Falha ao autenticar:", error);
-      const errorMessage =
+
+      if (error instanceof ApiError) {
+        if (error.status === 401) {
+          message.error("Email ou senha inválidos. Verifique as credenciais e tente novamente.");
+        } else {
+          message.error(error.message || "Não foi possível realizar o login.");
+        }
+        return;
+      }
+
+      const fallbackMessage =
         error instanceof Error
           ? error.message
           : "Não foi possível realizar o login.";
-      message.error(errorMessage);
+      message.error(fallbackMessage);
     } finally {
       setLoading(false);
     }

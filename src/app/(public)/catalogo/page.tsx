@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Row, Col, Input, Select, Card, List, Typography, Spin, Empty, Tag, App } from "antd";
-import { ClockCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { Input, Select, Spin, App } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./page.module.css";
@@ -10,9 +10,6 @@ import styles from "./page.module.css";
 import { getCourses, getKnowledgeAreas, Course, KnowledgeArea } from "@/services/courseService";
 import { useAuth } from "@/hooks/useAuth";
 import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
-
-const { Title } = Typography;
-const { Meta } = Card;
 
 const CourseCardLink = ({ course, children }: { course: Course, children: React.ReactNode }) => {
   const { user } = useAuth();

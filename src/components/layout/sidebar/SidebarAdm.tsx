@@ -75,14 +75,6 @@ const SidebarProtected: FC<SidebarProps> = ({ collapsed, setCollapsed }) => {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.profileContainer}>
-          <button className={styles.profileButton}>
-            <span className={styles.icon}>
-              <Image src={userIcon} alt="User profile icon" width={24} height={24} />
-            </span>
-            <span className={styles.navText}>Meu Perfil</span>
-          </button>
-        </div>
         <button
             className={styles.collapseButton}
             onClick={() => logout()}

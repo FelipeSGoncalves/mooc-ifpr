@@ -25,21 +25,26 @@ const LoginForm: React.FC = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
+  // 🔥 Novo método recomendado pelo AntD
+  const [messageApi, contextHolder] = message.useMessage();
+
   const onFinish = async (values: LoginFormValues) => {
     setLoading(true);
     try {
       const { token } = await login(values);
 
       const decoded: DecodedToken = jwtDecode(token);
-      
+
       setCookie(null, 'jwt_token', token, {
-        maxAge: 30 * 24 * 60 * 60, // 30 dias
+        maxAge: 30 * 24 * 60 * 60,
         path: '/',
       });
 
-      message.success("Login realizado com sucesso!");
+      messageApi.success("Login realizado com sucesso!");
 
-      const redirectPath = decoded.role === 'ADMIN' ? '/adm/dashboard' : '/aluno/dashboard';
+      const redirectPath =
+        decoded.role === 'ADMIN' ? '/adm/dashboard' : '/aluno/dashboard';
+
       router.push(redirectPath);
 
     } catch (error) {
@@ -47,9 +52,11 @@ const LoginForm: React.FC = () => {
 
       if (error instanceof ApiError) {
         if (error.status === 401) {
-          message.error("Email ou senha inválidos. Verifique as credenciais e tente novamente.");
+          messageApi.error(
+            "Email ou senha inválidos. Verifique as credenciais e tente novamente."
+          );
         } else {
-          message.error(error.message || "Não foi possível realizar o login.");
+          messageApi.error(error.message || "Não foi possível realizar o login.");
         }
         return;
       }
@@ -58,20 +65,22 @@ const LoginForm: React.FC = () => {
         error instanceof Error
           ? error.message
           : "Não foi possível realizar o login.";
-      message.error(fallbackMessage);
+
+      messageApi.error(fallbackMessage);
     } finally {
       setLoading(false);
     }
   };
 
-  // ADICIONADO: A função que estava faltando.
-  // Ela é chamada se o formulário falhar na validação (ex: campos vazios).
   const onFinishFailed = (errorInfo: ValidateErrorEntity<LoginFormValues>) => {
     console.log("Falha na validação do formulário:", errorInfo);
   };
 
   return (
     <div className={styles.container}>
+      {/* 🔥 Necessário para o sistema de mensagens funcionar no AntD 5 */}
+      {contextHolder}
+
       <Typography.Title level={2} className={styles.title}>
         Entrar
       </Typography.Title>
@@ -81,7 +90,7 @@ const LoginForm: React.FC = () => {
         layout="vertical"
         initialValues={{ remember: true }}
         onFinish={onFinish}
-        onFinishFailed={onFinishFailed} // Agora a função existe
+        onFinishFailed={onFinishFailed}
         autoComplete="off"
         className={styles.form}
       >
@@ -94,7 +103,7 @@ const LoginForm: React.FC = () => {
           ]}
         >
           <Input
-            prefix={<MailOutlined className="site-form-item-icon" />}
+            prefix={<MailOutlined />}
             placeholder="seuemail@exemplo.com"
             size="large"
           />
@@ -106,7 +115,7 @@ const LoginForm: React.FC = () => {
           rules={[{ required: true, message: "Por favor, insira sua senha!" }]}
         >
           <Input.Password
-            prefix={<LockOutlined className="site-form-item-icon" />}
+            prefix={<LockOutlined />}
             placeholder="Sua senha"
             size="large"
           />

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Typography, Spin, Card, Descriptions, Button, Result, App } from "antd";
-import { CheckCircleFilled, CloseCircleFilled, ArrowLeftOutlined } from "@ant-design/icons";
-import { useParams, useRouter } from "next/navigation";
+import { Typography, Spin, Card, Descriptions, Button, Result } from "antd";
+import { CheckCircleFilled, ArrowLeftOutlined } from "@ant-design/icons";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import dayjs from "dayjs";
 
@@ -17,7 +17,6 @@ const { Title, Text } = Typography;
 export default function ValidarCertificadoPorLink() {
   // useParams pega o valor que está na URL (o nome da pasta é [code])
   const params = useParams();
-  const router = useRouter();
   const code = params.code as string;
 
   const [loading, setLoading] = useState(true);

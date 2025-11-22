@@ -49,7 +49,7 @@ export default function HomePage() {
         // Busca os cursos mais recentes que estão visíveis para o público
         const data = await getCourses(undefined, null, "desc", true);
         setCourses(data.conteudo || []);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar os cursos.");
       } finally {
         setLoading(false);

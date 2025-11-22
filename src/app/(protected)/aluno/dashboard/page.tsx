@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Typography,
   Spin,
@@ -82,7 +83,7 @@ export default function AlunoDashboardPage() {
       try {
         const data = await getMyCourses(undefined, false, "desc");
         setInProgressCourses(data.conteudo || []);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar os cursos em andamento.");
       } finally {
         setLoadingInProgress(false);
@@ -94,7 +95,7 @@ export default function AlunoDashboardPage() {
       try {
         const data = await getCourses(undefined, null, "desc", true);
         setSuggestedCourses(data.conteudo || []);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar as sugestões de cursos.");
       } finally {
         setLoadingSuggestions(false);

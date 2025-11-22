@@ -34,7 +34,7 @@ export default function SolicitacoesPage() {
     try {
       const data = await getCertificateRequests(status);
       setRequests(data.conteudo || []);
-    } catch (error) {
+    } catch {
       message.error("Não foi possível carregar as solicitações.");
     } finally {
       setLoading(false);

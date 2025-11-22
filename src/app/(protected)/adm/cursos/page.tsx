@@ -28,7 +28,7 @@ export default function CursosPage() {
       try {
         const data = await getKnowledgeAreas();
         setKnowledgeAreas(data.conteudo || []);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar as áreas de conhecimento.");
       }
     };
@@ -41,7 +41,7 @@ export default function CursosPage() {
       try {
         const data = await getCourses(searchTerm, areaId, direction);
         setCourses(data.conteudo || []);
-      } catch (error) {
+      } catch {
         message.error("Não foi possível carregar os cursos.");
         setCourses([]);
       } finally {

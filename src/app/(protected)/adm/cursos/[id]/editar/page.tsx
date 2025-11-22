@@ -72,7 +72,7 @@ export default function EditarCursoPage() {
           visivel: course.visivel,
         });
         setCurrentThumbnailUrl(course.miniatura);
-      } catch (error) {
+      } catch {
         message.error("Falha ao carregar dados para edição.");
         router.push("/adm/cursos");
       } finally {

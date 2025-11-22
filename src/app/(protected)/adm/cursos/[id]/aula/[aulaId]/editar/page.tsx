@@ -45,7 +45,7 @@ export default function EditarAulaPage() {
                 descricao: lesson.descricao,
                 urlVideo: lesson.urlVideo,
             });
-        } catch (error) {
+        } catch {
             message.error("Não foi possível carregar os dados da aula.");
             router.push(`/adm/cursos/${courseId}`);
         } finally {

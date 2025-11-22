@@ -1,7 +1,7 @@
 import { ConfigProvider, App as AntApp } from "antd";
 import AntdRegistry from "@/lib/antd-registry";
 import { themeIFPR } from "@/lib/antd-theme";
-import { AuthProvider } from "@/hooks/useAuth"; // 1. Importar
+import { AuthProvider } from "@/hooks/useAuth"; // 1. Importartet
 import "./global.css";
 
 export default function RootLayout({

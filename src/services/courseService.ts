@@ -35,18 +35,30 @@ export async function getCourses(
   searchTerm?: string,
   areaId?: number | null,
   direction: "asc" | "desc" = "desc",
-  visible: boolean | null = null
+  visivel: boolean | null = null
 ) {
+  // 1. Captura o Token
+  const cookies = parseCookies();
+  const token = cookies.jwt_token;
+
   const params = new URLSearchParams();
-  if (searchTerm) params.append("name", searchTerm);
-  if (areaId) params.append("knowledgeAreaId", String(areaId));
-  if (visible !== null) params.append("visible", String(visible));
+  
+  if (searchTerm) params.append("nome", searchTerm);
+  if (areaId) params.append("areaConhecimentoId", String(areaId));
+  
+  // Envia o filtro de visibilidade se ele não for nulo
+  if (visivel !== null) params.append("visivel", String(visivel));
+  
   params.append("direction", direction);
   params.append("size", "100");
 
-  return apiRequest<PaginatedResponse<Course>>(`/courses?${params.toString()}`);
+  // 2. Envia o cabeçalho Authorization se o token existir
+  return apiRequest<PaginatedResponse<Course>>(`/courses?${params.toString()}`, {
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+  });
 }
-
 /**
  * Busca todas as áreas de conhecimento, filtrando por visibilidade.
  */

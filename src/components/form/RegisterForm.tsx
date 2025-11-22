@@ -22,6 +22,7 @@ import type { Dayjs } from "dayjs";
 
 import styles from "./RegisterForm.module.css";
 import { login, registerUser } from "@/services/authService";
+import { ApiError } from "@/services/api";
 import { setCookie } from "nookies";
 import { jwtDecode } from "jwt-decode";
 
@@ -82,19 +83,21 @@ const RegisterForm: React.FC = () => {
     setLoading(true);
 
     try {
+      const sanitizedPassword = values.password.trim();
+
       const payload = {
         fullName: values.fullName,
         cpf: sanitizeCPF(values.cpf),
         birthDate: values.birthDate.format("YYYY-MM-DD"),
         email: values.email,
-        password: values.password,
+        password: sanitizedPassword,
       };
 
       await registerUser(payload);
 
       const { token } = await login({
         email: values.email,
-        password: values.password,
+        password: sanitizedPassword,
       });
 
       setCookie(null, "jwt_token", token, {
@@ -110,6 +113,30 @@ const RegisterForm: React.FC = () => {
       router.push(redirectPath);
     } catch (error) {
       console.error("Falha ao cadastrar usuário:", error);
+
+      if (error instanceof ApiError) {
+        const details = error.details as {
+          errors?: Record<string, unknown>;
+          message?: string;
+        };
+
+        const firstFieldError = details?.errors
+          ? Object.values(details.errors).find(
+              (msg) => typeof msg === "string" && msg.trim().length > 0
+            )
+          : undefined;
+
+        if (typeof firstFieldError === "string") {
+          message.error(firstFieldError);
+          return;
+        }
+
+        if (typeof details?.message === "string") {
+          message.error(details.message);
+          return;
+        }
+      }
+
       const errorMessage =
         error instanceof Error
           ? error.message
@@ -230,7 +257,28 @@ const RegisterForm: React.FC = () => {
           name="password"
           rules={[
             { required: true, message: "Crie uma senha." },
-            { min: 6, message: "A senha deve ter pelo menos 6 caracteres." },
+            () => ({
+              validator(_, value) {
+                if (!value) {
+                  return Promise.resolve();
+                }
+
+                const normalizedPassword = value.trim();
+                const meetsRequirements = /^(?=.*[A-Z])(?=.*\d).{8,}$/.test(
+                  normalizedPassword
+                );
+
+                if (!meetsRequirements) {
+                  return Promise.reject(
+                    new Error(
+                      "A senha deve ter no mínimo 8 caracteres, incluindo uma letra maiúscula e um número."
+                    )
+                  );
+                }
+
+                return Promise.resolve();
+              },
+            }),
           ]}
         >
           <Input.Password
@@ -248,7 +296,10 @@ const RegisterForm: React.FC = () => {
             { required: true, message: "Confirme sua senha." },
             ({ getFieldValue }) => ({
               validator(_, value) {
-                if (!value || getFieldValue("password") === value) {
+                const originalPassword = getFieldValue("password")?.trim();
+                const confirmPassword = value?.trim();
+
+                if (!confirmPassword || originalPassword === confirmPassword) {
                   return Promise.resolve();
                 }
                 return Promise.reject(

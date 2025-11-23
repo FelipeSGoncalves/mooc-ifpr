@@ -1,18 +1,18 @@
-# Autores:
+<h1>Este repositório faz parte do projeto integrador MOOC IFPR</h1>
 
-Artur Henrique Bernardo
-Felipe da Silva Gonçalves
-Matheus Laurentino Alves Barbosa Vieira
+<b>Autores</b><br>
+<i> 
+    Artur Henrique Bernardo<br>
+    Felipe da Silva Gonçalves<br>
+    Matheus Laurentino Alves Barbosa Vieira
+</i>
 
-# Este repositório faz parte do projeto integrador MOOC IFPR
  Este projeto é uma aplicação Next.js que consome uma API feita em Spring Boot.
  Links ao final do README.
-
-## Para rodar este projeto localmente é necessário ter o Node.js instalado na sua máquina.
-
-Primeiramente para rodar a aplicação localmente você precisa clonar este repositório.
-Após clonar, copie o arquivo .env-example e renomei para .env, coloque o endereço da API Spring Boot que está rodando localmente como valor da variável de ambiente.
-Por fim, para rodar a aplicação, siga os passos abaixo:
+ - Para rodar este projeto localmente é necessário ter o Node.js instalado na sua máquina.
+ - Primeiramente para rodar a aplicação localmente você precisa clonar este repositório.<br>
+ - Após clonar, copie o arquivo .env-example e renomei para .env, coloque o endereço da API Spring Boot que está rodando localmente como valor da variável de ambiente.<br>
+ - Por fim, para rodar a aplicação, siga os passos abaixo:
 
 ```bash
 npm install

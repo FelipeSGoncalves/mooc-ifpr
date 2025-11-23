@@ -1,6 +1,7 @@
+// src/services/courseService.ts
+
 import { apiRequest, ApiError } from "./api";
 import { parseCookies } from "nookies";
-
 
 // Interface para as Áreas de Conhecimento
 export interface KnowledgeArea {
@@ -8,7 +9,7 @@ export interface KnowledgeArea {
   name: string;
 }
 
-// Interface para um Curso na lista (corresponde ao DTO do backend)
+// Interface para um Curso na lista
 export interface Course {
   id: number;
   nome: string;
@@ -18,6 +19,7 @@ export interface Course {
     id: number;
     nome: string;
   };
+  visivel: boolean;
 }
 
 // Interface para a resposta paginada da API
@@ -29,7 +31,6 @@ export interface PaginatedResponse<T> {
 
 /**
  * Busca a lista de cursos com filtros.
- * @param visible - Filtra por visibilidade (true para alunos, null para admin ver todos)
  */
 export async function getCourses(
   searchTerm?: string,
@@ -37,30 +38,32 @@ export async function getCourses(
   direction: "asc" | "desc" = "desc",
   visivel: boolean | null = null
 ) {
-  // 1. Captura o Token
+  // 1. Captura o Token (CRUCIAL para o Admin ver cursos privados)
   const cookies = parseCookies();
   const token = cookies.jwt_token;
 
   const params = new URLSearchParams();
   
-  if (searchTerm) params.append("nome", searchTerm);
-  if (areaId) params.append("areaConhecimentoId", String(areaId));
+  // 2. VOLTAMOS para os nomes em INGLÊS que o seu backend espera
+  if (searchTerm) params.append("name", searchTerm); 
+  if (areaId) params.append("knowledgeAreaId", String(areaId));
   
-  // Envia o filtro de visibilidade se ele não for nulo
-  if (visivel !== null) params.append("visivel", String(visivel));
+  // Mapeamos a variável 'visivel' (do front) para 'visible' (do back)
+  if (visivel !== null) params.append("visible", String(visivel));
   
   params.append("direction", direction);
   params.append("size", "100");
 
-  // 2. Envia o cabeçalho Authorization se o token existir
+  // 3. Enviamos o cabeçalho Authorization se o token existir
   return apiRequest<PaginatedResponse<Course>>(`/courses?${params.toString()}`, {
     headers: {
       ...(token && { Authorization: `Bearer ${token}` }),
     },
   });
 }
+
 /**
- * Busca todas as áreas de conhecimento, filtrando por visibilidade.
+ * Busca todas as áreas de conhecimento.
  */
 export async function getKnowledgeAreas() {
   const params = new URLSearchParams({ size: "100", active: "true" });
@@ -69,8 +72,6 @@ export async function getKnowledgeAreas() {
 
 /**
  * Faz o upload da thumbnail de um curso.
- * @param courseId O ID do curso ao qual a imagem pertence.
- * @param thumbnail O arquivo da imagem.
  */
 export async function uploadCourseThumbnail(courseId: number, thumbnail: File) {
   const token = parseCookies().jwt_token;
@@ -81,7 +82,6 @@ export async function uploadCourseThumbnail(courseId: number, thumbnail: File) {
   const formData = new FormData();
   formData.append("thumbnail", thumbnail);
 
-  // Agora usando o apiRequest, que vai lidar com o header e o token corretamente.
   return apiRequest(`/courses/${courseId}/thumbnail`, {
     method: "POST",
     headers: {
@@ -121,7 +121,6 @@ export interface CourseDetails {
     concluidoEm: string | null;
     totalAulas: number;
     aulasConcluidas: number;
-    // --- CAMPOS ADICIONADOS ---
     certificateStatus?: 'analise' | 'aprovado' | 'reprovado';
     certificateStatusDescription?: string;
   };
@@ -137,14 +136,12 @@ export interface CourseUpdatePayload {
   visivel?: boolean;
 }
 
-
 export async function patchCourseVisibility(id: number | string, visivel: boolean) {
   const token = parseCookies().jwt_token;
   if (!token) {
       throw new ApiError("Usuário não autenticado", 401);
   }
 
-  // O endpoint retorna o objeto do curso atualizado, igual ao PUT
   return apiRequest<CourseDetails>(`/courses/${id}`, {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${token}` },

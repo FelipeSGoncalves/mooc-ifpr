@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Row,
   Col,
@@ -49,22 +49,25 @@ export default function MeusCursosPage() {
   const [status, setStatus] = useState<boolean | null>(null);
   const [direction, setDirection] = useState<"desc" | "asc">("desc");
 
+  // Busca as áreas de conhecimento
   useEffect(() => {
     const fetchAreas = async () => {
       try {
         const data = await getKnowledgeAreas();
         setKnowledgeAreas(data.conteudo || []);
       } catch {
-        message.error("Não foi possível carregar as áreas de conhecimento.");
+        console.error("Erro ao carregar áreas");
       }
     };
     fetchAreas();
-  }, [message]);
+  }, []);
 
+  // Busca os cursos do aluno
   useEffect(() => {
     const fetchCourses = async () => {
       setLoading(true);
       try {
+        // Passamos apenas termo, status e direção para o backend
         const data = await getMyCourses(searchTerm, status, direction);
         setCourses(data.conteudo || []);
       } catch {
@@ -75,7 +78,19 @@ export default function MeusCursosPage() {
       }
     };
     fetchCourses();
-  }, [searchTerm, areaId, status, direction, message]);
+    // 1. IMPORTANTE: Removemos 'areaId' das dependências.
+    // O filtro de área será feito localmente, não precisa refazer a requisição.
+  }, [searchTerm, status, direction, message]);
+
+  // 2. IMPORTANTE: Filtro Client-Side para a Área
+  const filteredCourses = useMemo(() => {
+    if (!areaId) return courses; // Se não tem área selecionada, retorna tudo que veio do back
+    
+    // Converte para String para garantir comparação segura (caso venha number/string misturado)
+    return courses.filter(
+      (c) => String(c.areaConhecimento?.id) === String(areaId)
+    );
+  }, [courses, areaId]);
 
   return (
     <div className={styles.container}>
@@ -90,6 +105,7 @@ export default function MeusCursosPage() {
               onSearch={(value) => setSearchTerm(value)}
               enterButton
               size="large"
+              allowClear
             />
           </Col>
           <Col xs={24} md={6} lg={6}>
@@ -98,7 +114,7 @@ export default function MeusCursosPage() {
               allowClear
               placeholder="Todos"
               style={{ width: "100%" }}
-              onChange={(value) => setStatus(value)}
+              onChange={(value) => setStatus(value ?? null)}
               size="large"
               options={[
                 { value: false, label: "Em andamento" },
@@ -112,7 +128,8 @@ export default function MeusCursosPage() {
               allowClear
               placeholder="Todas as áreas"
               style={{ width: "100%" }}
-              onChange={(value) => setAreaId(value)}
+              // Garante que limpa o valor corretamente
+              onChange={(value) => setAreaId(value || null)}
               size="large"
               options={knowledgeAreas.map((area) => ({
                 value: area.id,
@@ -142,7 +159,8 @@ export default function MeusCursosPage() {
       ) : (
         <List
           grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 4, xl: 4, xxl: 4 }}
-          dataSource={courses}
+          // 3. IMPORTANTE: Usamos a lista filtrada aqui
+          dataSource={filteredCourses}
           renderItem={(course) => (
             <List.Item>
               <Link href={`/aluno/cursos/${course.cursoId}`}>

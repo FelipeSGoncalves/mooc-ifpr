@@ -11,18 +11,16 @@ import Link from "next/link";
 import styles from "./page.module.css";
 
 import { getCourseDetails, CourseDetails, LessonSummary } from "@/services/courseService";
-// REMOVIDO: cancelEnrollment da importação
 import { enrollInCourse } from "@/services/enrollmentService"; 
 import { generateCertificate } from "@/services/certificateService";
 import fallbackImage from "@/assets/mooc.jpeg";
-import { useAuth } from "@/hooks/useAuth";
+
 import { ApiError } from "@/services/api";
 
 const { Title, Paragraph, Text } = Typography;
 
 export default function AlunoCursoPage() {
   const { message } = App.useApp();
-  const { user } = useAuth();
   const [course, setCourse] = useState<CourseDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
@@ -33,7 +31,7 @@ export default function AlunoCursoPage() {
 
   const fetchCourseDetails = useCallback(async () => {
     if (!id) return;
-    setLoading(true);
+
     try {
       const data = await getCourseDetails(id);
       if (data.aulas) {
@@ -49,35 +47,34 @@ export default function AlunoCursoPage() {
   }, [id, message, router]);
 
   useEffect(() => {
+
+    setLoading(true);
     fetchCourseDetails();
   }, [fetchCourseDetails]);
 
   const handleEnroll = async () => {
-    if (!user || !course) return;
     
+    if (!course) {
+        console.error("Erro: Curso não carregado no estado.");
+        return;
+    }
+    
+    console.log("Iniciando processo de inscrição no curso:", course.id);
     setActionLoading(true);
+
     try {
       const enrollmentData = await enrollInCourse(course.id);
+      console.log("Sucesso na API:", enrollmentData);
       message.success("Inscrição realizada com sucesso!");
 
-      setCourse((prev) => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          inscricaoInfo: {
-            inscricaoId: enrollmentData.id,
-            estaInscrito: true,
-            concluido: false,
-            inscritoEm: enrollmentData.criadoEm,
-            concluidoEm: null,
-            totalAulas: prev.aulas.length,
-            aulasConcluidas: 0,
-          }
-        };
-      });
+      router.refresh();
 
-    } catch {
-      message.error("Falha ao se inscrever. Tente novamente.");
+      await fetchCourseDetails();
+
+    } catch (error) {
+      console.error("Erro ao se inscrever:", error);
+      const msg = error instanceof ApiError ? error.message : "Falha ao se inscrever.";
+      message.error(msg);
     } finally {
       setActionLoading(false);
     }
@@ -96,8 +93,6 @@ export default function AlunoCursoPage() {
       setActionLoading(false);
     }
   };
-
-  // REMOVIDO: Função handleCancelEnrollment
 
   const renderActionButtons = () => {
     // Se não estiver inscrito
@@ -146,7 +141,6 @@ export default function AlunoCursoPage() {
       ? `/aluno/cursos/${id}/aula/${firstUnwatchedLesson.id}`
       : (course.aulas.length > 0 ? `/aluno/cursos/${id}/aula/${course.aulas[0].id}` : '#');
 
-    // REMOVIDO: Botão de cancelar inscrição. Agora retorna apenas o "Continuar Assistindo".
     return (
       <Link href={continueLink} style={{ width: '100%' }}>
         <Button type="primary" size="large" icon={<PlayCircleOutlined />} block>

@@ -1,5 +1,5 @@
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/mooc";
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/mooc";
 
 export class ApiError extends Error {
   status: number;

@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
-import RegisterForm from "@/components/form/RegisterForm";
-
+import RegisterForm from "@/components/forms/Register/RegisterForm";
 import styles from "./page.module.css";
 
 export default function Cadastro() {

@@ -1,7 +1,9 @@
-import { ConfigProvider, App as AntApp } from "antd";
+"use client";
+
+import { ConfigProvider, App } from "antd";
 import AntdRegistry from "@/lib/antd-registry";
 import { themeIFPR } from "@/lib/antd-theme";
-import { AuthProvider } from "@/hooks/useAuth"; // 1. Importartet
+import { AuthProvider } from "@/hooks/useAuth";
 import "./global.css";
 
 export default function RootLayout({
@@ -13,12 +15,13 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body>
         <AntdRegistry>
-          <ConfigProvider theme={themeIFPR}>
-            {/* 2. Envolver o AntApp com o AuthProvider */}
-            <AuthProvider>
-              <AntApp>{children}</AntApp>
-            </AuthProvider>
-          </ConfigProvider>
+          <App>
+            <ConfigProvider theme={themeIFPR}>
+              <AuthProvider>
+                {children}
+              </AuthProvider>
+            </ConfigProvider>
+          </App>
         </AntdRegistry>
       </body>
     </html>

@@ -14,7 +14,7 @@ import fallbackImage from "@/assets/thumbnailInformaticaDoZero.png";
 const CourseCardLink = ({ course, children }: { course: Course, children: React.ReactNode }) => {
   const { user } = useAuth();
   const href = user ? `/aluno/cursos/${course.id}` : `/curso/${course.id}`;
-  
+
   return <Link href={href}>{children}</Link>;
 };
 
@@ -25,7 +25,7 @@ export default function CatalogoCursos() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedArea, setSelectedArea] = useState<number | null>(null);
-  
+
   // Estado para controlar a ordenação local
   const [sortOption, setSortOption] = useState<string>("newest");
 
@@ -44,25 +44,25 @@ export default function CatalogoCursos() {
 
         // --- LÓGICA DE ORDENAÇÃO NO FRONT-END ---
         switch (sortOption) {
-            case "oldest":
-                lista.sort((a, b) => a.id - b.id);
-                break;
-            case "workload_desc": // Maior carga horária
-                lista.sort((a, b) => b.cargaHoraria - a.cargaHoraria);
-                break;
-            case "workload_asc": // Menor carga horária
-                lista.sort((a, b) => a.cargaHoraria - b.cargaHoraria);
-                break;
-            case "az": // Nome A-Z
-                lista.sort((a, b) => a.nome.localeCompare(b.nome));
-                break;
-            case "za": // Nome Z-A
-                lista.sort((a, b) => b.nome.localeCompare(a.nome));
-                break;
-            case "newest":
-            default:
-                lista.sort((a, b) => b.id - a.id);
-                break;
+          case "oldest":
+            lista.sort((a, b) => a.id - b.id);
+            break;
+          case "workload_desc": // Maior carga horária
+            lista.sort((a, b) => b.cargaHoraria - a.cargaHoraria);
+            break;
+          case "workload_asc": // Menor carga horária
+            lista.sort((a, b) => a.cargaHoraria - b.cargaHoraria);
+            break;
+          case "az": // Nome A-Z
+            lista.sort((a, b) => a.nome.localeCompare(b.nome));
+            break;
+          case "za": // Nome Z-A
+            lista.sort((a, b) => b.nome.localeCompare(a.nome));
+            break;
+          case "newest":
+          default:
+            lista.sort((a, b) => b.id - a.id);
+            break;
         }
         // ----------------------------------------
 
@@ -87,26 +87,26 @@ export default function CatalogoCursos() {
           </div>
           <div className={styles.filters}>
             <Select size="large" placeholder="Área" options={knowledgeAreas.map(area => ({ label: area.name, value: area.id }))} allowClear value={selectedArea ?? undefined} onChange={(value) => setSelectedArea(value ?? null)} />
-            
+
             {/* SELECT COM NOVAS OPÇÕES */}
-            <Select 
-                size="large" 
-                placeholder="Ordenar" 
-                value={sortOption} 
-                onChange={(value) => setSortOption(value)} 
-                options={[
-                    { label: "Mais Recentes", value: "newest" },
-                    { label: "Mais Antigos", value: "oldest" },
-                    { label: "Maior Carga Horária", value: "workload_desc" },
-                    { label: "Menor Carga Horária", value: "workload_asc" },
-                    { label: "Nome (A-Z)", value: "az" },
-                    { label: "Nome (Z-A)", value: "za" },
-                ]} 
+            <Select
+              size="large"
+              placeholder="Ordenar"
+              value={sortOption}
+              onChange={(value) => setSortOption(value)}
+              options={[
+                { label: "Mais Recentes", value: "newest" },
+                { label: "Mais Antigos", value: "oldest" },
+                { label: "Maior Carga Horária", value: "workload_desc" },
+                { label: "Menor Carga Horária", value: "workload_asc" },
+                { label: "Nome (A-Z)", value: "az" },
+                { label: "Nome (Z-A)", value: "za" },
+              ]}
             />
           </div>
         </div>
 
-        {loading ? <div className={styles.grid}><Spin size="large"/></div> : (
+        {loading ? <div className={styles.grid}><Spin size="large" /></div> : (
           <div className={styles.grid}>
             {courses.map((course) => (
               <CourseCardLink key={course.id} course={course}>

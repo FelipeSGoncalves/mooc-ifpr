@@ -92,7 +92,7 @@ export default function AlunoDashboardPage() {
     const fetchSuggestedCourses = async () => {
       setLoadingSuggestions(true);
       try {
-        const data = await getCourses(undefined, null, "desc", true);
+        const data = await getCourses(undefined, null, "desc", true, false, "popularidade");
         setSuggestedCourses(data.conteudo || []);
       } catch {
         message.error("Não foi possível carregar as sugestões de cursos.");

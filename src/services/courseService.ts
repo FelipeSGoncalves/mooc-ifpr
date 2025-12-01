@@ -36,7 +36,9 @@ export async function getCourses(
   searchTerm?: string,
   areaId?: number | null,
   direction: "asc" | "desc" = "desc",
-  visivel: boolean | null = null
+  visivel: boolean | null = null,
+  enrolled: boolean | null = null,
+  sortBy: string | null = null
 ) {
   // 1. Captura o Token (CRUCIAL para o Admin ver cursos privados)
   const cookies = parseCookies();
@@ -47,6 +49,8 @@ export async function getCourses(
   // 2. VOLTAMOS para os nomes em INGLÊS que o seu backend espera
   if (searchTerm) params.append("name", searchTerm); 
   if (areaId) params.append("knowledgeAreaId", String(areaId));
+  if (enrolled != null) params.append("enrolled", String(enrolled));
+  if (sortBy) params.append("sortBy", sortBy);
   
   // Mapeamos a variável 'visivel' (do front) para 'visible' (do back)
   if (visivel !== null) params.append("visible", String(visivel));
